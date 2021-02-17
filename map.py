@@ -1,14 +1,26 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import numpy as np
+import sqlite3
 
-img = np.random.randn(100, 100)
+conn = sqlite3.connect("Map.db")
+c = conn.cursor()
 
 plt.figure()
-img = mpimg.imread('DNDMapP.jpg')
+img = mpimg.imread('DNDMapFinal.png')
 plt.imshow(img)
-#plt.annotate('25, 50', xy=(25, 50), xycoords='data',
- #            xytext=(0.5, 0.5), textcoords='figure fraction',
-  #           arrowprops=dict(arrowstyle="->"))git c
-plt.scatter(25, 50, s=250, c='red', marker='o')
+
+roomNumber = 1
+c.execute('SELECT xCoord FROM Maps WHERE roomNumber = ?', (roomNumber,))
+rows = c.fetchone()
+for row in rows:
+    xCoord = rows
+
+c.execute('SELECT yCoord FROM Maps WHERE roomNumber = ?', (roomNumber,))
+rows = c.fetchone()
+for row in rows:
+    yCoord = row
+
+plt.scatter(xCoord, yCoord, s=250, c='red', marker='o')
 plt.show()
+
+    
