@@ -16,7 +16,8 @@ verbs = {
 	'kill' : 'KILL',
 	'swing' : 'SWING',
 	'enter' : 'ENTER',
-	'go' : 'GO'
+	'go' : 'GO',
+	'grab' : 'GRAB'
 }
 
 directions = {
@@ -26,12 +27,24 @@ directions = {
 	'west' : 'WEST'
 }
 
+items = {
+	'potion' : 'POTION',
+	'bag' : 'BAG'
+}
+
+articles = {
+	'a' : 'A',
+	'the' : 'THE'
+}
+
 tokens = [
 	'WORD',
 	'NOUN',
 	'VERB',
-	'DIRECTION'
-] + list(nouns.values()) + list(verbs.values()) + list(directions.values())
+	'DIRECTION',
+	'ITEM',
+	'ARTICLE'
+] + list(nouns.values()) + list(verbs.values()) + list(directions.values()) + list(items.values()) + list(articles.values())
 
 def t_WORD(t):
 	r'[a-zA-Z]+'
@@ -42,6 +55,10 @@ def t_WORD(t):
 		t.type = verbs.get(t.value, 'VERB') # Convert type from a word to a verb
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
+	if t.value in list(items.values()):
+		t.type = items.get(t.value, 'ITEM')
+	if t.value in list(articles.values()):
+		t.type = articles.get(t.value, 'ARTICLE')
 	return t
 
 def t_error(t):
@@ -57,6 +74,16 @@ lexer.input(user_input.upper())
 for token in lexer:
 	print(token)
 
+
+def p_attack_command(p):
+	'''
+	attackCommand : VERB NOUN
+	'''
+	p[0] = ('VERB', p[1], 'NOUN', p[2])
+	print(p[0])
+	print('This is an ATTACK COMMAND!')
+
+
 def p_move_command(p):
 	'''
 	moveCommand : VERB DIRECTION
@@ -65,14 +92,23 @@ def p_move_command(p):
 	print(p[0])
 	print('This is a MOVE COMMAND!')
 
+
+def p_grab_command(p):
+	'''
+	grabCommand : VERB ARTICLE ITEM
+	'''
+	p[0] = ('VERB', p[1], 'ARTICLE', p[2], 'ITEM', p[3])
+	print(p[0])
+	print('This is a GRAB COMMAND!')
+
+
+def p_drop_command(p):
+	'''
+	dropCommand : VERB NOUN
+	'''
+	p[0] = ('VERB', p[1], 'NOUN', p[2])
+	print(p[0])
+	print('This is a DROP COMMAND!')
+
 parser = yacc()
 output = parser.parse(user_input.upper())
-
-if 'NORTH' in output:
-	print ("You decide to head NORTH!")
-if 'SOUTH' in output:
-	print ("You decide to head SOUTH!")
-if 'EAST' in output:
-	print ("You decide to head EAST!")
-if 'WEST' in output:
-	print ("You decide to head WEST!")
