@@ -3,9 +3,7 @@ from ply.yacc import yacc
 
 # A pre-defined dictionary to distiguish nouns
 nouns = {
-	'princess' : 'PRINCESS',
 	'dragon' : 'DRAGON',
-	'sword' : 'SWORD',
 	'door' : 'DOOR',
 	'house' : 'HOUSE'
 }
@@ -17,7 +15,8 @@ verbs = {
 	'swing' : 'SWING',
 	'enter' : 'ENTER',
 	'go' : 'GO',
-	'grab' : 'GRAB'
+	'grab' : 'GRAB',
+	'drop' : 'DROP'
 }
 
 directions = {
@@ -27,9 +26,14 @@ directions = {
 	'west' : 'WEST'
 }
 
-items = {
-	'potion' : 'POTION',
-	'bag' : 'BAG'
+npcs = {
+	'goblin' : 'GOBLIN',
+	'princess' : 'PRINCESS',
+}
+
+objects = {
+	'sword' : 'SWORD',
+	'potion' : 'POTION'
 }
 
 articles = {
@@ -43,8 +47,10 @@ tokens = [
 	'VERB',
 	'DIRECTION',
 	'ITEM',
-	'ARTICLE'
-] + list(nouns.values()) + list(verbs.values()) + list(directions.values()) + list(items.values()) + list(articles.values())
+	'ARTICLE',
+	'NPC',
+	'OBJECT'
+] + list(nouns.values()) + list(verbs.values()) + list(directions.values()) + list(articles.values()) + list(npcs.values()) + list(objects.values())
 
 def t_WORD(t):
 	r'[a-zA-Z]+'
@@ -55,10 +61,12 @@ def t_WORD(t):
 		t.type = verbs.get(t.value, 'VERB') # Convert type from a word to a verb
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
-	if t.value in list(items.values()):
-		t.type = items.get(t.value, 'ITEM')
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
+	if t.value in list(npcs.values()):
+		t.type = npcs.get(t.value, 'NPC')
+	if t.value in list(objects.values()):
+		t.type = objects.get(t.value, 'OBJECT')
 	return t
 
 def t_error(t):
@@ -74,41 +82,44 @@ lexer.input(user_input.upper())
 for token in lexer:
 	print(token)
 
+def p_command(p):
+	'''
+	command : VERB ARTICLE
+			| VERB WORD ARTICLE
+	'''
+	if p[2] == 'TO':
+		p[0] = ('VERB', p[1], 'WORD', p[2], 'ARTICLE', p[3])
 
-def p_attack_command(p):
-	'''
-	attackCommand : VERB NOUN
-	'''
-	p[0] = ('VERB', p[1], 'NOUN', p[2])
+	elif p[2] == 'THE':
+		p[0] = ('VERB', p[1], 'ARTICLE', p[2])
+
 	print(p[0])
-	print('This is an ATTACK COMMAND!')
 
+def p_moveCommand(p):
+	'''
+	moveCommand : command DIRECTION
+	'''
+	p[0] = ('COMMAND', p[1], 'DIRECTION', p[2])
+	print("This is a MOVE COMMAND")
 
-def p_move_command(p):
+def p_attackCommand(p):
 	'''
-	moveCommand : VERB DIRECTION
+	attackCommand : command NPC
 	'''
-	p[0] = ('VERB', p[1], 'DIRECTION', p[2])
-	print(p[0])
-	print('This is a MOVE COMMAND!')
+	p[0] = ('COMMAND', p[1], 'NPC', p[2])
+	print("This is an ATTACK COMMAND")
 
+def p_itemCommand(p):
+	'''
+	itemCommand : command OBJECT
+	'''
+	p[0] = ('COMMAND', p[1], 'OBJECT', p[2])
 
-def p_grab_command(p):
-	'''
-	grabCommand : VERB ARTICLE ITEM
-	'''
-	p[0] = ('VERB', p[1], 'ARTICLE', p[2], 'ITEM', p[3])
-	print(p[0])
-	print('This is a GRAB COMMAND!')
+	if p[1][1] == 'DROP':
+		print("This is a DROP COMMAND")
 
-
-def p_drop_command(p):
-	'''
-	dropCommand : VERB NOUN
-	'''
-	p[0] = ('VERB', p[1], 'NOUN', p[2])
-	print(p[0])
-	print('This is a DROP COMMAND!')
+	elif p[1][1] == 'GRAB':
+		print("This is a GRAB COMMAND")
 
 parser = yacc()
 output = parser.parse(user_input.upper())
