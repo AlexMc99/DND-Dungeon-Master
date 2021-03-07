@@ -74,6 +74,14 @@ lexer.input(user_input.upper())
 for token in lexer:
 	print(token)
 
+def p_move_command(p):
+	'''
+	moveCommand : VERB DIRECTION
+	'''
+	p[0] = ('VERB', p[1], 'DIRECTION', p[2])
+	print(p[0])
+	print('This is a MOVE COMMAND!')
+	return p[2]
 
 def p_attack_command(p):
 	'''
@@ -82,15 +90,6 @@ def p_attack_command(p):
 	p[0] = ('VERB', p[1], 'NOUN', p[2])
 	print(p[0])
 	print('This is an ATTACK COMMAND!')
-
-
-def p_move_command(p):
-	'''
-	moveCommand : VERB DIRECTION
-	'''
-	p[0] = ('VERB', p[1], 'DIRECTION', p[2])
-	print(p[0])
-	print('This is a MOVE COMMAND!')
 
 
 def p_grab_command(p):
