@@ -4,13 +4,11 @@ import sqlite3
 
 class Map:
 
-    location = 1
+    location = 3
 
     def getLocation(newLocation):
         conn = sqlite3.connect("Map.db")
         c = conn.cursor()
-        print('here')
-        print(newLocation)
         if(newLocation == 'NORTH'):
             c.execute('SELECT canNorth FROM Maps2 WHERE roomNumber = ?', (Map.location,))
             rows = c.fetchone()
@@ -28,7 +26,6 @@ class Map:
                 newRoom = row
             if(newRoom != 0):
                 Map.location = newRoom
-                print(Map.location)
                 Map.map()
             else:
                 print('You ran into a wall')
@@ -64,7 +61,6 @@ class Map:
         plt.imshow(img)
 
         roomNumber = Map.location
-        print(Map.location)
         c.execute('SELECT xCoord FROM Maps2 WHERE roomNumber = ?', (roomNumber,))
         rows = c.fetchone()
         for row in rows:
@@ -74,8 +70,6 @@ class Map:
         rows = c.fetchone()
         for row in rows:
             yCoord = row
-
-        print(yCoord)
         plt.scatter(xCoord, yCoord, s=250, c='red', marker='o')
         plt.axis('off')
         plt.savefig('latestMap.png', bbox_inches='tight', pad_inches = 0)

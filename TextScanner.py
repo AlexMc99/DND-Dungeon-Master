@@ -85,6 +85,13 @@ def t_error(t):
 
 # Ignores whitespace
 t_ignore = ' '
+
+
+class Returns:
+	def __init__(self): 
+		self.message = ''
+		self.direction = ''
+ 
 def parse(user_input):
 	# Pass user input from the console to the lexer
 	#user_input = input()
@@ -119,11 +126,15 @@ def parse(user_input):
 		structure.append(token.type) # Append token types to empty list
 	print(structure) # Ssee if the token types were added properly
 
+	returns = Returns()
+
 	# Makeshift grammar test
 	if structure[0] == 'ARTICLE' and structure[1] == 'NOUN':
-		print("This IS a noun phrase!")
+		returns.message = "This IS a noun phrase!"
 	if structure[0] == 'VERB' and structure[1] == 'DIRECTION':
-		print("This IS a MOVE phrase!")
-		return token.value
+		returns.message = "This IS a MOVE phrase!"
+		returns.direction = token.value
 	else:
-		print("This IS NOT a noun phrase!")
+		returns.message = "This IS NOT a noun phrase!"
+
+	return returns
