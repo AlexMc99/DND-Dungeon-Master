@@ -1,114 +1,258 @@
-# Libraries
-import re
 from ply.lex import lex
 from ply.yacc import yacc
 
 # A pre-defined dictionary to distiguish nouns
 nouns = {
-	'princess' : 'PRINCESS',
-	'dragon' : 'DRAGON',
-	'sword' : 'SWORD',
 	'door' : 'DOOR',
-	'house' : 'HOUSE'
-}
-
-# A pre-defined dictionary to distiguish verbs
-verbs = {
-	'save' : 'SAVE',
-	'kill' : 'KILL',
-	'swing' : 'SWING',
-	'enter' : 'ENTER',
-	'go' : 'GO'
+	'room' : 'ROOM',
+	'sword' : 'SWORD',
+	'potion' : 'POTION',
+	'bag' : 'BAG',
+	'torch' : 'TORCH',
+	'ring' : 'RING',
+	'mirror' : 'MIRROR',
+	'key' : 'KEY',
+	'scarf' : 'SCARF',
+	'dagger' : 'DAGGER',
+	'gauntlets' : 'GAUNTLETS',
+	'knife' : 'KNIFE',
+	'bracelet' : 'BRACELET',
+	'shield' : 'SHIELD',
+	'wand' : 'WAND'
 }
 
 # A pre-defined dictionary to distiguish articles
 articles = {
 	'a' : 'A',
+	'an' : 'AN',
 	'the' : 'THE'
 }
 
-# A pre-defined dictionary to distiguish prepositions
-prepositions = {
-	'in' : 'IN',
-	'on' : 'ON',
-	'at' : 'AT',
-	'through' : 'THROUGH'
+# A pre-defined dictionary to distiguish words that deal with moving
+moving = {
+	'go' : 'GO',
+	'head' : 'HEAD',
+	'travel' : 'TRAVEL',
+	'move' : 'MOVE',
+	'enter' : 'ENTER',
+	'leave' : 'LEAVE'
 }
 
-# List of tokens for the lexer to compare user input to
-# Adds lists of the nouns, verbs, articles, and prepositions dictionaries as
-# reserved words
+# A pre-defined dictionary to distiguish words that deal with attacking
+attacking = {
+	'kill' : 'KILL',
+	'swing' : 'SWING',
+	'stab' : 'STAB',
+	'kick' : 'KICK',
+	'punch' : 'PUNCH',
+	'swipe' : 'SWIPE',
+	'slice' : 'SLICE',
+	'dice' : 'DICE',
+	'shove' : 'SHOVE',
+	'push' : 'PUSH',
+	'headbutt' : 'HEADBUTT',
+	'shoot' : 'SHOOT',
+	'choke' : 'CHOKE',
+	'strangle' : 'STRANGLE',
+	'charge' : 'CHARGE',
+	'impale' : 'IMPALE',
+	'beat' : 'BEAT',
+	'attack' : 'ATTACK'
+}
+
+# A pre-defined dictionary to distiguish words that deal with sneaking
+sneaking = {
+	'sneak' : 'SNEAK',
+	'slither' : 'SLITHER',
+	'sleuth' : 'SLEUTH',
+	'seduce' : 'SEDUCE',
+	'bribe' : 'BRIBE',
+	'distract' : 'DISTRACT',
+	'stealth' : 'STEALTH'
+}
+
+# A pre-defined dictionary to distiguish words that deal with grabbing
+grabbing = {
+	'grab' : 'GRAB',
+	'seize' : 'SEIZE',
+	'grasp' : 'GRASP',
+	'snatch' : 'SNATCH',
+}
+
+# A pre-defined dictionary to distiguish words that deal with dropping
+dropping = {
+	'drop' : 'DROP',
+	'relinquish' : 'RELINQUISH',
+	'set' : 'SET',
+	'place' : 'PLACE',
+	'release' : 'RELEASE',
+	'unhand' : 'UNHAND',
+	'put' : 'PUT',
+	'lay' : 'LAY'
+}
+
+# A pre-defined dictionary to distiguish words that deal with using
+using = {
+	'use' : 'USE',
+	'utilize' : 'UTILIZE',
+	'operate' : 'OPERATE',
+	'apply' : 'APPLY',
+	'wield' : 'WIELD',
+	'open' : 'OPEN'
+}
+
+# A pre-defined dictionary to distiguish words that deal with directions
+directions = {
+	'north' : 'NORTH',
+	'south' : 'SOUTH',
+	'east' : 'EAST',
+	'west' : 'WEST'
+}
+
+# A pre-defined dictionary to distiguish words that are NPCs
+npcs = {
+	'jareth' : 'JARETH',
+	'hogarth' : 'HOGARTH',
+	'hob' : 'HOB',
+	'gob' : 'GOB',
+	'glarg' : 'glarg',
+	'simon' : 'SIMON',
+	'hob' : 'HOB',
+	'kevin' : 'KEVIN',
+	'michael' : 'MICHAEL',
+	'snef' : 'SNEF',
+	'kristo' : 'KRISTO',
+	'nick' : 'NICK',
+	'belsnickel' : 'BELSNICKEL',
+}
+
+# A pre-defined dictionary to distiguish words that deal with adjectives
+adjectives = {
+	'golden' : 'GOLDEN',
+	'enchanted' : 'ENCHANTED',
+	'rusty' : 'RUSTY',
+	'rickety' : 'RICKETY',
+	'large' : 'LARGE',
+	'small' : 'SMALL',
+	'medium' : 'MEDIUM'
+}
+
+# List of Tokens used by the Lexer
 tokens = [
 	'WORD',
-	'NUMBER',
 	'NOUN',
-	'VERB',
+	'DIRECTION',
 	'ARTICLE',
-	'PREPOSITION'
-] + list(nouns.values()) + list(verbs.values()) + list(articles.values()) + list(prepositions.values())
-#tokens = ('LETTER', 'NUMBER', 'PLUS', 'TIMES', 'EQUAL', 'NOUN')
+	'NPC',
+	'ATTACKING',
+	'MOVING',
+	'ADJECTIVE',
+	'SNEAKING',
+	'GRABBING',
+	'DROPPING',
+	'USING'
+]
 
-# Defining a word to the lexer
 def t_WORD(t):
 	r'[a-zA-Z]+'
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
-	if t.value in list(verbs.values()):
-		t.type = verbs.get(t.value, 'VERB') # Convert type from a word to a verb
+	if t.value in list(directions.values()):
+		t.type = directions.get(t.value, 'DIRECTION')
 	if t.value in list(articles.values()):
-		t.type = articles.get(t.value, 'ARTICLE') # Convert type from a word to an article
-	if t.value in list(prepositions.values()):
-		t.type = prepositions.get(t.value, 'PREPOSITION') # Convert type from self.assert_(boolean expression, 'message') word to a preposition
+		t.type = articles.get(t.value, 'ARTICLE')
+	if t.value in list(npcs.values()):
+		t.type = npcs.get(t.value, 'NPC')
+	if t.value in list(attacking.values()):
+		t.type = attacking.get(t.value, 'ATTACKING')
+	if t.value in list(moving.values()):
+		t.type = moving.get(t.value, 'MOVING')
+	if t.value in list(adjectives.values()):
+		t.type = adjectives.get(t.value, 'ADJECTIVE')
+	if t.value in list(sneaking.values()):
+		t.type = sneaking.get(t.value, 'SNEAKING')
+	if t.value in list(grabbing.values()):
+		t.type = grabbing.get(t.value, 'GRABBING')
+	if t.value in list(dropping.values()):
+		t.type = dropping.get(t.value, 'DROPPING')
+	if t.value in list(using.values()):
+		t.type = using.get(t.value, 'USING')
 	return t
 
-# Defining a number to the lexer
-def t_NUMBER(t):
-	r'[0-9]+'
-	t.value = int(t.value)
-	return t
-
-# Skips undefined characters
 def t_error(t):
 	print(f'Illegal character: {t.value[0]!r}')
 	t.lexer.skip(1)
 
-# Ignores whitespace
+# Ignore whitespace
 t_ignore = ' '
 
-# Pass user input from the console to the lexer
 user_input = input()
 lexer = lex()
 lexer.input(user_input.upper())
 
-# Append the token type (word, noun, verb, etc.) of each token int he lexer to
-# an empty list named structure
-structure = []
 for token in lexer:
 	print(token)
-	#print(dir(token))
 
-	# Test to find the type of each token from the lexer
-	if token.type == 'WORD':
-		print("This is a WORD!\n")
-	if token.type == 'NUMBER':
-		print("This is a NUMBER!\n")
-	if token.type == 'NOUN':
-		print("This is a NOUN!\n")
-	if token.type == 'VERB':
-		print("This is a VERB!\n")
-	if token.type == 'ARTICLE':
-		print("This is an ARTICLE!\n")
-	if token.type == 'PREPOSITION':
-		print("This is a PREPOSITION!\n")
-	if not token:
-		break
+def p_action(p):
+	'''
+	command : fuller NOUN
+			| fuller NPC
+			| command DIRECTION
+	'''
 
-	structure.append(token.type) # Append token types to empty list
-print(structure) # Ssee if the token types were added properly
+def p_fuller(p):
+	'''
+	fuller : full WORD
+		   | full ADJECTIVE
+		   | full ARTICLE
+	'''
 
-# Makeshift grammar test
-if structure[0] == 'ARTICLE' and structure[1] == 'NOUN':
-	print("This IS a noun phrase!")
-else:
-	print("This IS NOT a noun phrase!")
+def p_full(p):
+	'''
+	full : command WORD
+		 | command ADJECTIVE
+		 | command ARTICLE
+	'''
+
+def p_use(p):
+	'''
+	command : USING
+	'''
+	print("I got a use command!", p[1])
+
+def p_grab(p):
+	'''
+	command : GRABBING
+	'''
+	print("I got a grab command!", p[1])
+
+def p_drop(p):
+	'''
+	command : DROPPING
+	'''
+	print("I got a drop command!", p[1])
+
+def p_sneak(p):
+	'''
+	command : SNEAKING
+	'''
+	print("I got a sneak command!", p[1])
+
+def p_attack(p):
+	'''
+	command : ATTACKING
+	'''
+	print("I got an attack command!", p[1])
+
+def p_move(p):
+	'''
+	command : MOVING
+	'''
+	print("I got a move command!", p[1])
+
+def p_error(p):
+    print("Syntax error in input!")
+
+parser = yacc()
+output = parser.parse(user_input.upper())
