@@ -3,22 +3,104 @@ from ply.yacc import yacc
 
 # A pre-defined dictionary to distiguish nouns
 nouns = {
-	'dragon' : 'DRAGON',
 	'door' : 'DOOR',
-	'house' : 'HOUSE'
+	'room' : 'ROOM',
+	'sword' : 'SWORD',
+	'potion' : 'POTION',
+	'bag' : 'BAG',
+	'torch' : 'TORCH',
+	'ring' : 'RING',
+	'mirror' : 'MIRROR',
+	'key' : 'KEY',
+	'scarf' : 'SCARF',
+	'dagger' : 'DAGGER',
+	'gauntlets' : 'GAUNTLETS',
+	'knife' : 'KNIFE',
+	'bracelet' : 'BRACELET',
+	'shield' : 'SHIELD',
+	'wand' : 'WAND'
 }
 
-# A pre-defined dictionary to distiguish verbs
-verbs = {
-	'save' : 'SAVE',
+# A pre-defined dictionary to distiguish articles
+articles = {
+	'a' : 'A',
+	'an' : 'AN',
+	'the' : 'THE'
+}
+
+# A pre-defined dictionary to distiguish words that deal with moving
+moving = {
+	'go' : 'GO',
+	'head' : 'HEAD',
+	'travel' : 'TRAVEL',
+	'move' : 'MOVE',
+	'enter' : 'ENTER',
+	'leave' : 'LEAVE'
+}
+
+# A pre-defined dictionary to distiguish words that deal with attacking
+attacking = {
 	'kill' : 'KILL',
 	'swing' : 'SWING',
-	'enter' : 'ENTER',
-	'go' : 'GO',
-	'grab' : 'GRAB',
-	'drop' : 'DROP'
+	'stab' : 'STAB',
+	'kick' : 'KICK',
+	'punch' : 'PUNCH',
+	'swipe' : 'SWIPE',
+	'slice' : 'SLICE',
+	'dice' : 'DICE',
+	'shove' : 'SHOVE',
+	'push' : 'PUSH',
+	'headbutt' : 'HEADBUTT',
+	'shoot' : 'SHOOT',
+	'choke' : 'CHOKE',
+	'strangle' : 'STRANGLE',
+	'charge' : 'CHARGE',
+	'impale' : 'IMPALE',
+	'beat' : 'BEAT',
+	'attack' : 'ATTACK'
 }
 
+# A pre-defined dictionary to distiguish words that deal with sneaking
+sneaking = {
+	'sneak' : 'SNEAK',
+	'slither' : 'SLITHER',
+	'sleuth' : 'SLEUTH',
+	'seduce' : 'SEDUCE',
+	'bribe' : 'BRIBE',
+	'distract' : 'DISTRACT',
+	'stealth' : 'STEALTH'
+}
+
+# A pre-defined dictionary to distiguish words that deal with grabbing
+grabbing = {
+	'grab' : 'GRAB',
+	'seize' : 'SEIZE',
+	'grasp' : 'GRASP',
+	'snatch' : 'SNATCH',
+}
+
+# A pre-defined dictionary to distiguish words that deal with dropping
+dropping = {
+	'drop' : 'DROP',
+	'relinquish' : 'RELINQUISH',
+	'set' : 'SET',
+	'place' : 'PLACE',
+	'release' : 'RELEASE',
+	'unhand' : 'UNHAND',
+	'put' : 'PUT',
+	'lay' : 'LAY'
+}
+
+# A pre-defined dictionary to distiguish words that deal with using
+using = {
+	'use' : 'USE',
+	'utilize' : 'UTILIZE',
+	'operate' : 'OPERATE',
+	'apply' : 'APPLY',
+	'wield' : 'WIELD'
+}
+
+# A pre-defined dictionary to distiguish words that deal with directions
 directions = {
 	'north' : 'NORTH',
 	'south' : 'SOUTH',
@@ -26,53 +108,84 @@ directions = {
 	'west' : 'WEST'
 }
 
+# A pre-defined dictionary to distiguish words that are NPCs
 npcs = {
-	'goblin' : 'GOBLIN',
-	'princess' : 'PRINCESS',
+	'jareth' : 'JARETH',
+	'hogarth' : 'HOGARTH',
+	'hob' : 'HOB',
+	'gob' : 'GOB',
+	'glarg' : 'glarg',
+	'simon' : 'SIMON',
+	'hob' : 'HOB',
+	'kevin' : 'KEVIN',
+	'michael' : 'MICHAEL',
+	'snef' : 'SNEF',
+	'kristo' : 'KRISTO',
+	'nick' : 'NICK',
+	'belsnickel' : 'BELSNICKEL',
 }
 
-objects = {
-	'sword' : 'SWORD',
-	'potion' : 'POTION'
+# A pre-defined dictionary to distiguish words that deal with adjectives
+adjectives = {
+	'golden' : 'GOLDEN',
+	'enchanted' : 'ENCHANTED',
+	'rusty' : 'RUSTY',
+	'rickety' : 'RICKETY',
+	'large' : 'LARGE',
+	'small' : 'SMALL',
+	'medium' : 'MEDIUM'
 }
 
-articles = {
-	'a' : 'A',
-	'the' : 'THE'
-}
-
+# List of Tokens used by the Lexer
 tokens = [
 	'WORD',
 	'NOUN',
-	'VERB',
 	'DIRECTION',
-	'ITEM',
 	'ARTICLE',
 	'NPC',
-	'OBJECT'
-] + list(nouns.values()) + list(verbs.values()) + list(directions.values()) + list(articles.values()) + list(npcs.values()) + list(objects.values())
+	'ATTACKING',
+	'MOVING',
+	'ADJECTIVE',
+	'SNEAKING',
+	'GRABBING',
+	'DROPPING',
+	'USING'
+]
+
+#+ list(nouns.values()) + list(directions.values()) + list(articles.values()) + list(npcs.values()) + list(attacking.values()) + list(moving.values()) + list(adjectives.values()) + list(sneaking.values()) + list(grabbing.values()) + list(dropping.values())
 
 def t_WORD(t):
 	r'[a-zA-Z]+'
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
-	if t.value in list(verbs.values()):
-		t.type = verbs.get(t.value, 'VERB') # Convert type from a word to a verb
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
 	if t.value in list(npcs.values()):
 		t.type = npcs.get(t.value, 'NPC')
-	if t.value in list(objects.values()):
-		t.type = objects.get(t.value, 'OBJECT')
+	if t.value in list(attacking.values()):
+		t.type = attacking.get(t.value, 'ATTACKING')
+	if t.value in list(moving.values()):
+		t.type = moving.get(t.value, 'MOVING')
+	if t.value in list(adjectives.values()):
+		t.type = adjectives.get(t.value, 'ADJECTIVE')
+	if t.value in list(sneaking.values()):
+		t.type = sneaking.get(t.value, 'SNEAKING')
+	if t.value in list(grabbing.values()):
+		t.type = grabbing.get(t.value, 'GRABBING')
+	if t.value in list(dropping.values()):
+		t.type = dropping.get(t.value, 'DROPPING')
+	if t.value in list(using.values()):
+		t.type = using.get(t.value, 'USING')
 	return t
 
 def t_error(t):
 	print(f'Illegal character: {t.value[0]!r}')
 	t.lexer.skip(1)
 
+# Ignore whitespace
 t_ignore = ' '
 
 user_input = input()
@@ -82,44 +195,123 @@ lexer.input(user_input.upper())
 for token in lexer:
 	print(token)
 
-def p_command(p):
-	'''
-	command : VERB ARTICLE
-			| VERB WORD ARTICLE
-	'''
-	if p[2] == 'TO':
-		p[0] = ('VERB', p[1], 'WORD', p[2], 'ARTICLE', p[3])
+# def p_fullCommand(p):
+# 	'''
+# 	fullCommand : command OBJECT
+# 				| command DIRECTION
+# 				| command NPC
+# 	'''
+# 	if p[1][1] == 'DROP':
+# 		print("This is a DROP COMMAND")
+#
+# 	elif p[1][1] == 'GRAB':
+# 		print("This is a GRAB COMMAND")
+#
+# 	elif p[1][1] == "GO" or p[1][1] == "HEAD":
+# 		print("This is a MOVE COMMAND")
+#
+# 	elif p[1][1] == "KILL" or p[1][1] == "ATTACK":
+# 		print("This is an ATTACK COMMAND")
+#
+# 	elif p[1][1] == "SNEAK":
+# 		print("This is an SNEAK COMMAND")
+#
+# def p_dropCommand(p):
+# 	'''
+# 	dropCommand : DROP OBJECT
+# 	'''
+# 	p[0] = ('COMMAND', p[1], 'OBJECT', p[2])
+#
+# 	if p[1][1] == 'DROP':
+# 		print("This is a DROP COMMAND")
+#
+# 	elif p[1][1] == 'GRAB':
+# 		print("This is a GRAB COMMAND")
 
-	elif p[2] == 'THE':
-		p[0] = ('VERB', p[1], 'ARTICLE', p[2])
+# def p_command(p):
+# 	'''
+# 	command : start NPC
+# 			| start DIRECTION
+# 	'''
+# 	print(p[0])
+# 	if 'ATTACK':
+# 		p[0] = ('START', p[1], 'NPC', p[2])
+# 		print("This is an ATTACK COMMAND")
+#
+# 	if 'MOVE':
+# 		p[0] = ('START', p[1], 'DIRECTION', p[2])
+# 		print("This is a MOVE COMMAND")
 
-	print(p[0])
+# def p_command(p):
+# 	'''
+# 	command : VERB ARTICLE
+# 			| VERB WORD ARTICLE
+# 	'''
+# 	if p[2] == 'TO':
+# 		p[0] = ('VERB', p[1], 'WORD', p[2], 'ARTICLE', p[3])
+#
+# 	elif p[2] == 'THE':
+# 		p[0] = ('VERB', p[1], 'ARTICLE', p[2])
 
-def p_moveCommand(p):
+def p_action(p):
 	'''
-	moveCommand : command DIRECTION
+	command : fuller NOUN
+			| fuller NPC
+			| command DIRECTION
 	'''
-	p[0] = ('COMMAND', p[1], 'DIRECTION', p[2])
-	print("This is a MOVE COMMAND")
 
-def p_attackCommand(p):
+def p_fuller(p):
 	'''
-	attackCommand : command NPC
+	fuller : full WORD
+		   | full ADJECTIVE
+		   | full ARTICLE
 	'''
-	p[0] = ('COMMAND', p[1], 'NPC', p[2])
-	print("This is an ATTACK COMMAND")
 
-def p_itemCommand(p):
+def p_full(p):
 	'''
-	itemCommand : command OBJECT
+	full : command WORD
+		 | command ADJECTIVE
+		 | command ARTICLE
 	'''
-	p[0] = ('COMMAND', p[1], 'OBJECT', p[2])
 
-	if p[1][1] == 'DROP':
-		print("This is a DROP COMMAND")
+def p_use(p):
+	'''
+	command : USING
+	'''
+	print("I got a use command!", p[1])
 
-	elif p[1][1] == 'GRAB':
-		print("This is a GRAB COMMAND")
+def p_grab(p):
+	'''
+	command : GRABBING
+	'''
+	print("I got a grab command!", p[1])
+
+def p_drop(p):
+	'''
+	command : DROPPING
+	'''
+	print("I got a drop command!", p[1])
+
+def p_sneak(p):
+	'''
+	command : SNEAKING
+	'''
+	print("I got a sneak command!", p[1])
+
+def p_attack(p):
+	'''
+	command : ATTACKING
+	'''
+	print("I got an attack command!", p[1])
+
+def p_move(p):
+	'''
+	command : MOVING
+	'''
+	print("I got a move command!", p[1])
+
+def p_error(p):
+    print("Syntax error in input!")
 
 parser = yacc()
 output = parser.parse(user_input.upper())
