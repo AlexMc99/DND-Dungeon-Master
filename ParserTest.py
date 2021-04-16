@@ -72,7 +72,7 @@ lexer = lex()
 lexer.input(user_input.upper())
 
 for token in lexer:
-	print(token)
+	print(token)asz
 
 
 def p_attack_command(p):

@@ -4,12 +4,19 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.scatter import Scatter 
 from kivy.uix.label import Label  
+from kivy.uix.image import Image 
 from kivy.uix.floatlayout import FloatLayout 
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 from TextScanner import parse
+from kivy.core.window import Window
+from kivy.core.text import LabelBase
 from map import Map
 import random
+from kivy.clock import Clock
+
+LabelBase.register(name='arcade', 
+                   fn_regular='ARCADECLASSIC.TTF')
 
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
@@ -17,8 +24,8 @@ import random
 Builder.load_string("""
 <ScreenManagement>:
     MenuScreen:
-        id: name
-        name: 'menu'
+        id: background
+        name: 'background'
         
     RulesScreen:
         id: rules
@@ -36,31 +43,65 @@ Builder.load_string("""
         id: dice
         name: 'dice'
         
+<RoundedPlayButton@Button>:
+    background_color:(0,0,0,0)
+    background_normal: ''
+    canvas.before:
+        Color: 
+            rgba: (0,0,0,0)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [24]
+<RoundedHowButton@Button>:
+    background_color:(0,0,0,0)
+    background_normal: ''
+    canvas.before:
+        Color: 
+            rgba: (0,0,0,0)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [15]
+
 <MenuScreen>:
-    BoxLayout:
+    FloatLayout:
         orientation: 'vertical'
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "background.png"
+            Rectangle:
+                size: self.width, 200
+                pos: self.pos[0], self.pos[1] + self.size[1] - 200
+                texture: root.cloud_texture
         Label:
-            text: 'D&D' 
-            font_size: 100
-        Button:
-            text: 'Play'
-            font_size: "22sp"
-            background_color: (1, 1, 1, 1) 
+            text: 'Dungeons and Dragons' 
+            pos: 10, 30
+            font_size: 70
+            font_name: "arcade"
+            bold: True
+
+        RoundedPlayButton:
+            text: 'P la y'
+            font_size: "60sp"
+            pos: 330, 100
             color: (1, 1, 1, 1)  
             size: (20, 20) 
-            pos: (300, 250)
-            size_hint: (1, .2)
+            size_hint: (.2, .15)
+            font_name: "arcade"
             on_release: 
                 root.manager.current = 'play'
                 
-        Button:
-            text: 'How to Play'
-            font_size: "20sp"
-            background_color: (1, 1, 1, 1) 
+        RoundedHowButton:
+            text: 'H o w   to   P la y'
+            font_size: "30sp"
             color: (1, 1, 1, 1)  
-            size: (20, 20) 
-            pos: (400, 350)
-            size_hint: (1, .2)
+            size: (10, 10) 
+            font_name: "arcade"
+            pos: 350, 20
+            size_hint: (.15, .1)
             on_release: 
                 root.manager.current = 'rules'
 
@@ -75,13 +116,27 @@ Builder.load_string("""
             color: (1, 1, 1, 1)  
             size: (32, 32) 
             size_hint: (1, .2)
-            on_press: root.manager.current = 'menu'
+            on_press: root.manager.current = 'background'
 
 <PlayScreen>:
     last_name_text_input: last_name
     on_pre_enter: root.focusInput()
     BoxLayout: 
         orientation: 'vertical'
+        Label:
+            id: stats
+            text: 'HP: {}                  Strength: {}'.format(root.hp, root.strength)
+            height: self.texture_size[1]
+            size: (32, 32) 
+            size_hint: (1, .2)
+            background_color: (0, 0, 1, 1) 
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
         Label:
             id: output
             text: root.message
@@ -94,7 +149,6 @@ Builder.load_string("""
             size_hint_y: None
             multiline: False
             focus: True
-            height: 100
             hint_text: 'Press Enter to Continue'
             on_text_validate: root.submit_input()
             text_validate_unfocus: False
@@ -152,6 +206,18 @@ def randomNum():
     
 
 class MenuScreen(Screen):
+    cloud_texture = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cloud_texture = Image(source="cloud2.png").texture
+        self.cloud_texture.wrap = 'repeat'
+        self.cloud_texture.uvsize = (Window.width / 1000, -1)
+    
+    def scroll_texture(self, time_passed):
+        self.cloud_texture.uvpos = ((self.cloud_texture.uvpos[0] + time_passed/50.0)%Window.width, self.cloud_texture.uvpos[1])
+        texture = self.property('cloud_texture')
+        texture.dispatch(self)
     pass
 
 class PlayScreen(Screen):
@@ -159,7 +225,9 @@ class PlayScreen(Screen):
     ego = NumericProperty(0)
     userInput = StringProperty('')
     messageCount = 0
-    message = ('It has been a long journey, but it will pay off soon. Do you remember what happened? ...')
+    message = ('It has been a long journey, but it will pay off soon. Do you remember what happened? ...\n\n')
+    hp = 100
+    strength = 0
 
     def focusInput(self):
         self.ids.last_name.focus = True
@@ -173,23 +241,23 @@ class PlayScreen(Screen):
         self.userInput = ''
         self.load()
         if (self.messageCount == 0):
-            self.message = 'Your brother was kidnapped by the King of Trolls during an invasion on your homeland, the Kingdom of Glott. Cattle was killed, homes were burned, and innocent lives were lost in the slaughter. Your brother, King Consort Hannibal, married to Queen Regnant Demetria, was kidnapped during the invasion.' 
+            self.message += 'Your brother was kidnapped by the King of Trolls during an invasion on your homeland, the Kingdom of Glott. Cattle was killed, homes were burned, and innocent lives were lost in the slaughter. Your brother, King Consort Hannibal, married to Queen Regnant Demetria, was kidnapped during the invasion.\n\n' 
             self.messageCount = 1
         elif (self.messageCount == 1):
-            self.message = 'You have been venturing through the marshy, barbaric Land of Boog in hopes of finding your brother. It has been exhausting. You’ve been ambushed, beaten, and gone so far as nearly losing your own life. But it has all been worth it. It has all led you to an abandoned prison, deep within the woods. It may all have been a rumor, maybe even a trap, but you are desperate for answers. You want your brother back. Your life back.'
+            self.message += 'You have been venturing through the marshy, barbaric Land of Boog in hopes of finding your brother. It has been exhausting. You’ve been ambushed, beaten, and gone so far as nearly losing your own life. But it has all been worth it. It has all led you to an abandoned prison, deep within the woods. It may all have been a rumor, maybe even a trap, but you are desperate for answers. You want your brother back. Your life back.\n\n'
             self.messageCount = 2
         elif (self.messageCount == 2):
-            self.message = 'You enter the abandoned building.'
+            self.message = 'You enter the abandoned building.\n'
             self.messageCount = 3
         elif (self.messageCount == 3):
-            self.message = 'Upon entering, you see a torch to your left. Do you wish to take it?'
+            self.message = 'Upon entering, you see a torch to your left. Do you wish to take it? \n'
             self.messageCount = 4
         elif (self.messageCount == 4):
             if(self.userInput == 'Yes' or self.userInput == 'yes'):
-                self.message = 'It will help to illuminate the pathway for you.'
+                self.message = 'It will help to illuminate the pathway for you. \n'
                 self.messageCount = 5
             elif(self.userInput == 'No' or self.userInput == 'no'):
-                self.message = 'Your endeavor will be harder with your limited field of sight.'
+                self.message = 'Your endeavor will be harder with your limited field of sight.\n'
                 self.messageCount = 5
             else:
                 self.message = 'Please enter either yes or no'
@@ -227,6 +295,7 @@ class PlayScreen(Screen):
                 self.message = 'This is the end'
         self.ids.last_name.focus = True
         self.ids.output.text = self.message
+        self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
         self.ids.last_name.focus = True
         self.focusInput()
 
@@ -235,12 +304,16 @@ class PlayScreen(Screen):
             self.message = 'Attack successful, you took him down easily.'
         else:
             self.message = 'Attack successful, unfortunately they put up a fight you lose 10 HP'
+            self.hp = self.hp - 10
+            self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
 
     def peek(self, num):
         if(num > 10):
             self.message = 'You were successful, the enemy doesn’t notice you.'
         else:
             self.message = 'The enemy noticed you and you prepare for a fight you lose 10 HP'
+            self.hp = self.hp - 10
+            self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
 
     def save(self):
         with open("surname.txt", "w") as fobj:
@@ -282,6 +355,8 @@ class ScreenManagement(ScreenManager):
 
 class TestApp(App):
 
+    def on_start(self):
+        Clock.schedule_interval(self.root.ids.background.scroll_texture, 1/100.)
     def build(self):
         return ScreenManagement()
 
