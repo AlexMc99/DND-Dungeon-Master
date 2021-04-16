@@ -1,0 +1,97 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    A
+    BAG
+    DOOR
+    DRAGON
+    EAST
+    ENTER
+    GO
+    GRAB
+    HOUSE
+    KILL
+    NORTH
+    POTION
+    PRINCESS
+    SAVE
+    SOUTH
+    SWING
+    SWORD
+    THE
+    WEST
+    WORD
+
+Grammar
+
+Rule 0     S' -> moveCommand
+Rule 1     moveCommand -> VERB DIRECTION
+Rule 2     grabCommand -> VERB ARTICLE ITEM
+Rule 3     dropCommand -> VERB NOUN
+
+Terminals, with rules where they appear
+
+A                    : 
+ARTICLE              : 2
+BAG                  : 
+DIRECTION            : 1
+DOOR                 : 
+DRAGON               : 
+EAST                 : 
+ENTER                : 
+GO                   : 
+GRAB                 : 
+HOUSE                : 
+ITEM                 : 2
+KILL                 : 
+NORTH                : 
+NOUN                 : 3
+POTION               : 
+PRINCESS             : 
+SAVE                 : 
+SOUTH                : 
+SWING                : 
+SWORD                : 
+THE                  : 
+VERB                 : 1 2 3
+WEST                 : 
+WORD                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+dropCommand          : 
+grabCommand          : 
+moveCommand          : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . moveCommand
+    (1) moveCommand -> . VERB DIRECTION
+
+    VERB            shift and go to state 2
+
+    moveCommand                    shift and go to state 1
+
+state 1
+
+    (0) S' -> moveCommand .
+
+
+
+state 2
+
+    (1) moveCommand -> VERB . DIRECTION
+
+    DIRECTION       shift and go to state 3
+
+
+state 3
+
+    (1) moveCommand -> VERB DIRECTION .
+
+    $end            reduce using rule 1 (moveCommand -> VERB DIRECTION .)
+

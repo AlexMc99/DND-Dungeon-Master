@@ -21,6 +21,13 @@ nouns = {
 	'wand' : 'WAND'
 }
 
+directions = {
+	'north' : 'NORTH',
+	'south' : 'SOUTH',
+	'east' : 'EAST',
+	'west' : 'WEST'
+}
+
 # A pre-defined dictionary to distiguish articles
 articles = {
 	'a' : 'A',
