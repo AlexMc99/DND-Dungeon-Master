@@ -1,22 +1,28 @@
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.base import runTouchApp
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.scatter import Scatter 
 from kivy.uix.label import Label  
 from kivy.uix.image import Image 
 from kivy.uix.floatlayout import FloatLayout 
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.properties import ObjectProperty, NumericProperty, StringProperty
-from TextScanner import parse
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
+from kivy.uix.scrollview import ScrollView
+from ParserTest import parse1
 from map import Map
 import random
+import kivymd
 from kivy.clock import Clock
+from kivymd.app import MDApp
+from kivymd.uix.screen import Screen
 
+import Story
 LabelBase.register(name='arcade', 
-                   fn_regular='ARCADECLASSIC.TTF')
+                   fn_regular='Connectioniii-Rj3W.otf')
 
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
@@ -64,6 +70,15 @@ Builder.load_string("""
             pos: self.pos
             radius: [15]
 
+<ScrollableLabel>:
+    text: ''
+    Label:
+        text: root.text
+        font_size: 80
+        text_size: self.width, None
+        size_hint_y: None
+        height: self.texture_size[1]
+
 <MenuScreen>:
     FloatLayout:
         orientation: 'vertical'
@@ -79,29 +94,31 @@ Builder.load_string("""
         Label:
             text: 'Dungeons and Dragons' 
             pos: 10, 30
-            font_size: 70
+            font_size: 65
             font_name: "arcade"
             bold: True
 
         RoundedPlayButton:
-            text: 'P la y'
+            text: 'p la y'
             font_size: "60sp"
             pos: 330, 100
             color: (1, 1, 1, 1)  
             size: (20, 20) 
             size_hint: (.2, .15)
             font_name: "arcade"
+            bold: True
             on_release: 
                 root.manager.current = 'play'
                 
         RoundedHowButton:
-            text: 'H o w   to   P la y'
+            text: 'How to Play'
             font_size: "30sp"
             color: (1, 1, 1, 1)  
             size: (10, 10) 
             font_name: "arcade"
             pos: 350, 20
             size_hint: (.15, .1)
+            bold: True
             on_release: 
                 root.manager.current = 'rules'
 
@@ -121,67 +138,84 @@ Builder.load_string("""
 <PlayScreen>:
     last_name_text_input: last_name
     on_pre_enter: root.focusInput()
-    BoxLayout: 
-        orientation: 'vertical'
+    FloatLayout:
+        #canvas.before:
+         #   Rectangle:
+           #     id: map
+          #      pos: 0, 100
+            #    size: 800, 500
+             #   source: "play3.jpeg"
         Label:
             id: stats
-            text: 'HP: {}                  Strength: {}'.format(root.hp, root.strength)
+            text: '{}              HP'.format(root.hp)
             height: self.texture_size[1]
+            font_size: "30sp"
             size: (32, 32) 
+            pos: 0, 500
             size_hint: (1, .2)
-            background_color: (0, 0, 1, 1) 
-            canvas.before:
-                Color:
-                    rgba: self.background_color
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
+            background_color: (0, 0, 0, 0) 
+            font_name: "arcade"
+        ScrollView:
+            Label:
+                id: output
+                text: root.message
+                text_size: self.width, 650
+                height: self.texture_size[0]
+                size_hint_y: .2
+                font_name: "arcade"
+                valign: 'bottom'
 
-        Label:
-            id: output
-            text: root.message
-            text_size: self.width, None
-            height: self.texture_size[1]
-
-        TextInput:
+        MDTextField:
             id: last_name
             font_size: 50
             size_hint_y: None
             multiline: False
             focus: True
+            mode: "fill"
+            fill_color: 0, 0, 0, .4
             hint_text: 'Press Enter to Continue'
             on_text_validate: root.submit_input()
             text_validate_unfocus: False
 
-        Button:
-            text: 'View Map'
-            background_color: (1, 1, 1, 1) 
-            color: (1, 1, 1, 1)  
-            size: (32, 32) 
-            size_hint: (1, .2)
-            on_press: root.manager.current = 'map'
+        MDIconButton:
+            icon: "dots-horizontal"
+            pos_hint: {"center_x": .95, "center_y": .08}
+            user_font_size: "40sp"
+            on_press: 
+                root.manager.current = 'map'
+        #Button:
+         #   text: 'View Map'
+          #  background_color: (1, 1, 1, 1) 
+           # color: (1, 1, 1, 1)  
+            #size: (10, 10) 
+            #size_hint: (.5, .2)
+            #pos: 0, 500
+            #on_press: root.manager.current = 'map'
 
 <MapScreen>:
     on_pre_enter: root.map()
-    BoxLayout:
+    MDFloatLayout:
         orientation: 'vertical'
-        Button:
-            text: 'Back'
-            width: 100
-            allow_stretch: True
-            size_hint_y: None
-            on_press: root.manager.current = 'play'
         Image:
             id: map
             source: "latestMap.png"
-            size: root.size
+            allow_stretch: True
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size_hint_x: 0.88
+            size_hint_y: 0.88
+        MDIconButton:
+            icon: "arrow-left"
+            pos_hint: {"center_x": .04, "center_y": .95}
+            user_font_size: "55sp"
+            on_press: 
+                root.manager.current = 'play'
           
 <DiceScreen>:
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba: 1, 1, 1, 1
+                rgba: .76, .76, .76, .76
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -195,6 +229,7 @@ Builder.load_string("""
 """)
 
 global num
+global gMessage
 
 def randomNum():
     global num
@@ -221,99 +256,129 @@ class MenuScreen(Screen):
     pass
 
 class PlayScreen(Screen):
+    global gMessage 
+    gMessage = Story.introduction()
     last_name_text_input = ObjectProperty()
     ego = NumericProperty(0)
     userInput = StringProperty('')
     messageCount = 0
-    message = ('It has been a long journey, but it will pay off soon. Do you remember what happened? ...\n\n')
+    message = Story.introduction()
     hp = 100
     strength = 0
+    isAttack = False
+    dropdown = ObjectProperty()
+    #self.dropdown = MDDropdownMenu()
+    #self.dropdown.items.append(
+     #   {"viewclass": "MDMenuItem",
+      #   "text": "View Map",
+       # "callback": root.manager.current = 'map'}
+    #)
 
     def focusInput(self):
         self.ids.last_name.focus = True
 
     def submit_input(self):
+        global gMessage
         self.userInput = self.last_name_text_input.text
         self.last_name_text_input.text = ''
         self.ids.last_name.focus = True
-        #print("Assign surname: {}".format(self.userInput))
         self.save()
         self.userInput = ''
         self.load()
+        self.message = gMessage
+        self.message += self.userInput.ljust(400, " ")
+        
+        print(self.messageCount)
         if (self.messageCount == 0):
-            self.message += 'Your brother was kidnapped by the King of Trolls during an invasion on your homeland, the Kingdom of Glott. Cattle was killed, homes were burned, and innocent lives were lost in the slaughter. Your brother, King Consort Hannibal, married to Queen Regnant Demetria, was kidnapped during the invasion.\n\n' 
+            self.message += Story.room3_intro()
             self.messageCount = 1
         elif (self.messageCount == 1):
-            self.message += 'You have been venturing through the marshy, barbaric Land of Boog in hopes of finding your brother. It has been exhausting. You’ve been ambushed, beaten, and gone so far as nearly losing your own life. But it has all been worth it. It has all led you to an abandoned prison, deep within the woods. It may all have been a rumor, maybe even a trap, but you are desperate for answers. You want your brother back. Your life back.\n\n'
-            self.messageCount = 2
-        elif (self.messageCount == 2):
-            self.message = 'You enter the abandoned building.\n'
-            self.messageCount = 3
-        elif (self.messageCount == 3):
-            self.message = 'Upon entering, you see a torch to your left. Do you wish to take it? \n'
-            self.messageCount = 4
-        elif (self.messageCount == 4):
             if(self.userInput == 'Yes' or self.userInput == 'yes'):
-                self.message = 'It will help to illuminate the pathway for you. \n'
-                self.messageCount = 5
+                self.message += Story.room3_yes()
+                Map.getLocation('EAST')
+                self.messageCount = 2
             elif(self.userInput == 'No' or self.userInput == 'no'):
-                self.message = 'Your endeavor will be harder with your limited field of sight.\n'
-                self.messageCount = 5
+                self.message += Story.room3_no()
+                Map.getLocation('EAST')
+                self.messageCount = 2
             else:
-                self.message = 'Please enter either yes or no'
-        elif (self.messageCount == 5):
-            self.message = 'You go through the door, not knowing what awaits you on the other side.'
-            self.messageCount = 6
-            Map.getLocation('EAST')
-        elif (self.messageCount == 6):
-            self.message = 'You go through the door, not knowing what awaits you on the other side.'
+                self.message += 'Please enter either yes or no'
+                self.message += Story.room3_intro()
+        elif (self.messageCount == 2):
+            self.message += Story.room4_intro()
+            self.messageCount = 3
+        elif(self.messageCount == 3):
+            print(self.userInput)
+            value = parse1(self.userInput)
+            print(value)
+            if(value == 'ATTACK'):
+                self.message += Story.room4_attack()
+                self.messageCount = 4
+                self.isAttack = True
+            elif(value == 'SNEAK'):
+                self.message += Story.room4_sneak()
+                self.messageCount = 4
+            else:
+                self.message += 'That is an odd choice. You should probably attack or sneak around them '
+        elif(self.messageCount == 4):
+            self.manager.current = 'dice'
+            num = randomNum()
+            self.messageCount = 5
+            if(self.isAttack == True):
+                self.attack(num)
+            else:
+                self.peek(num)
+        elif(self.messageCount == 5):
+            print(self.userInput)
+            value = parse1(self.userInput)
+            print("The value is:")
+            print(value)
+            self.messageCount == 6
+            if(value == 'NORTH' or value == 'SOUTH' or value == 'EAST' or value == 'WEST'):
+                Map.getLocation(value)
+        elif(self.messageCount == 6):
+            if explore:
+                self.message += Story.room4_explore
+            else:
+                self.message += Story.room4_next()
             self.messageCount = 7
-        elif (self.messageCount == 7):
-            self.message = 'You hear a creaking noise down the hallway, what do you do?'
+        elif(self.messageCount == 7):
+            self.message += room2_intro()
             self.messageCount = 8
         elif(self.messageCount == 8):
-            if(self.userInput == 'ATTACK' or self.userInput == 'Attack' or self.userInput == 'attack'):
-                self.manager.current = 'dice'
-                num = randomNum()
-                self.messageCount = 9
-                self.attack(num)
-            elif(self.userInput == 'PEEK' or self.userInput == 'Peek' or self.userInput == 'peek'):
-                self.manager.current = 'dice'
-                num = randomNum()
-                self.messageCount = 9
-                self.peek(num)
-            else:
-                self.message = 'Please enter peek or attack'
-        elif(self.messageCount == 9):
-            self.message = 'For the moment, you are safe. You managed to neutralize the threat in the room. What do you do? You can either continue and go north or retreat and go west'
+            self.message += room2_attack()
+            self.messageCount = 9
+        elif(self.message == 9):
+            self.message += room2_attack_success()
             self.messageCount = 10
-        else:
-            
-            value = parse(self.userInput)
-            if(value.direction == 'NORTH' or value.direction == 'SOUTH' or value.direction == 'EAST' or value.direction == 'WEST'):
-                Map.getLocation(value.direction)
-                self.message = 'This is the end'
+        
         self.ids.last_name.focus = True
         self.ids.output.text = self.message
-        self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
+        gMessage = self.message
         self.ids.last_name.focus = True
+        self.userInput = ''
         self.focusInput()
 
     def attack(self, num):
         if(num > 15):
-            self.message = 'Attack successful, you took him down easily.'
+            self.message += Story.room4_attack_success()
         else:
-            self.message = 'Attack successful, unfortunately they put up a fight you lose 10 HP'
+            self.message += Story.room4_attack_fail()
             self.hp = self.hp - 10
-            self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
+            self.ids.stats.text = '{}              HP'.format(self.hp)
 
     def peek(self, num):
         if(num > 10):
-            self.message = 'You were successful, the enemy doesn’t notice you.'
+            self.message += Story.room4_sneak_success()
         else:
-            self.message = 'The enemy noticed you and you prepare for a fight you lose 10 HP'
+            self.message += Story.room4_sneak_fail()
             self.hp = self.hp - 10
-            self.ids.stats.text = 'HP: {}                  Strength: {}'.format(self.hp, self.strength)
+            self.ids.stats.text = '{}              HP'.format(self.hp)
+
+    def update_input(self, newlines):
+        for x in (newlines + 1): 
+            self.input_message += '\n'
+
 
     def save(self):
         with open("surname.txt", "w") as fobj:
@@ -323,6 +388,9 @@ class PlayScreen(Screen):
         with open("surname.txt") as fobj:
             for userInput in fobj:
                 self.userInput = userInput.rstrip()
+    
+    def on_icon_right(self, instance, value):
+        self.dropdown.open(root)
 
 
 class RulesScreen(Screen):
@@ -352,13 +420,13 @@ class DiceScreen(Screen):
 class ScreenManagement(ScreenManager):
     pass
 
-
-class TestApp(App):
-
+class TestApp(MDApp):
     def on_start(self):
         Clock.schedule_interval(self.root.ids.background.scroll_texture, 1/100.)
     def build(self):
-        return ScreenManagement()
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Blue"
+        return ScreenManagement(transition = NoTransition())
 
 
 if __name__ == '__main__':

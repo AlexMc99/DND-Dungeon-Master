@@ -21,13 +21,6 @@ nouns = {
 	'wand' : 'WAND'
 }
 
-directions = {
-	'north' : 'NORTH',
-	'south' : 'SOUTH',
-	'east' : 'EAST',
-	'west' : 'WEST'
-}
-
 # A pre-defined dictionary to distiguish articles
 articles = {
 	'a' : 'A',
@@ -167,6 +160,8 @@ def t_WORD(t):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
+		global direction
+		direction  = t.value
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
 	if t.value in list(npcs.values()):
@@ -194,72 +189,78 @@ def t_error(t):
 # Ignore whitespace
 t_ignore = ' '
 
-user_input = input()
-lexer = lex()
-lexer.input(user_input.upper())
+def parse (user_input):
+	lexer = lex()
+	lexer.input(user_input.upper())
 
-for token in lexer:
-	print(token)
+	for token in lexer:
+		print(token)
 
-def p_action(p):
-	'''
-	command : fuller NOUN
-			| fuller NPC
-			| command DIRECTION
-	'''
+	def p_action(p):
+		'''
+		command : fuller NOUN
+				| fuller NPC
+				| command DIRECTION
+		'''
 
-def p_fuller(p):
-	'''
-	fuller : full WORD
-		   | full ADJECTIVE
-		   | full ARTICLE
-	'''
+	def p_fuller(p):
+		'''
+		fuller : full WORD
+			| full ADJECTIVE
+			| full ARTICLE
+		'''
 
-def p_full(p):
-	'''
-	full : command WORD
-		 | command ADJECTIVE
-		 | command ARTICLE
-	'''
+	def p_full(p):
+		'''
+		full : command WORD
+			| command ADJECTIVE
+			| command ARTICLE
+		'''
 
-def p_use(p):
-	'''
-	command : USING
-	'''
-	print("I got a use command!", p[1])
+	def p_use(p):
+		'''
+		command : USING
+		'''
+		print("I got a use command!", p[1])
 
-def p_grab(p):
-	'''
-	command : GRABBING
-	'''
-	print("I got a grab command!", p[1])
+	def p_grab(p):
+		'''
+		command : GRABBING
+		'''
+		print("I got a grab command!", p[1])
 
-def p_drop(p):
-	'''
-	command : DROPPING
-	'''
-	print("I got a drop command!", p[1])
+	def p_drop(p):
+		'''
+		command : DROPPING
+		'''
+		print("I got a drop command!", p[1])
 
-def p_sneak(p):
-	'''
-	command : SNEAKING
-	'''
-	print("I got a sneak command!", p[1])
+	def p_sneak(p):
+		'''
+		command : SNEAKING
+		'''
+		print("I got a sneak command!", p[1])
 
-def p_attack(p):
-	'''
-	command : ATTACKING
-	'''
-	print("I got an attack command!", p[1])
+	def p_attack(p):
+		'''
+		command : ATTACKING
+		'''
+		print("I got an attack command!", p[1])
 
-def p_move(p):
-	'''
-	command : MOVING
-	'''
-	print("I got a move command!", p[1])
+	def p_move(p):
+		'''
+		command : MOVING
+		'''
+		print("I got a move command!", p[1])
 
-def p_error(p):
-    print("Syntax error in input!")
+	def p_error(p):
+		print("Syntax error in input!")
 
-parser = yacc()
-output = parser.parse(user_input.upper())
+	parser = yacc()
+	output = parser.parse(user_input.upper())
+
+	# Ignores whitespace
+	t_ignore = ' '
+
+	return direction
+

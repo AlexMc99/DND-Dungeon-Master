@@ -1,6 +1,6 @@
 def introduction():
-    print('''
-    It has been a long journey, bit it will pay off soon. Do you rember what
+    return '''
+    It has been a long journey, but it will pay off soon. Do you rember what
     happened?
     ...
 
@@ -11,83 +11,83 @@ def introduction():
     invasion.
 
     You have been venturing through the marshy, barbaric Land of Boog in hopes
-    of finding yourbrother. It has been exhausting. You’ve been ambushed,
+    of finding yourbrother. It has been exhausting. You have been ambushed,
     beaten, and gone so far as nearly losing your own life. But it has all been
     worth it. It has all led you to an abandoned prison, deep within the woods.
     It may all have been a rumor, maybe even a trap, but you are desperate for
     answers. You want your brother back. Your life back.
 
     You enter the abandoned building.
-    ''')
+    '''
 
 def room3_intro():
-    print('''
+    return'''
     Upon entering, you see a torch to your left. Do you wish to take it?
-    ''')
+    '''
 
 def room3_yes():
-    print('''
+    return '''
     You decided to take the torch.
 
     It will help to illumiate the pathway for you.
 
     You go through the door, not knowing what awaits you on the other side.
-    ''')
+    '''
 
 def room3_no():
-    print('''
+    return '''
     You decided not to take the torch.
 
     Your endeavor will be harder with your limited field of sight.
 
     You go through the door, not knowing what awaits you on the other side.
-    ''')
+    ''' 
 
 def room4_intro():
-    print('''
+    return '''
     You here a creaking noise down the hallway, what do you do?
-    ''')
+    '''
 
 def room4_sneak():
-    print('''
+    return '''
     You chose to quietly venture down the hall, peeking around the corner as you
     approach.
-    ''')
+    '''
 
 def room4_sneak_success():
-    print('''
+    return '''
     You stealthily managed to subdue him.
 
     For the moment, you are safe. You managed to neutralize the threat in the
     room. What do you do?
-    ''')
+    '''
 
 def room4_sneak_fail():
-    print('''
+    return '''
     You were unable to stealthily subdue him.
 
     The enemy notices you and you prepare for a fight.
-    ''')
+    '''
 
 def room4_attack():
-    print('''
+    return '''
     You chose to charge into an attack.
-    ''')
+    '''
 
 def room4_attack_success():
-    print('''
+    return '''
     The atttack was successful and you took him down easily.
 
     For the moment, you are safe. You managed to neutralize the threat in the
     room. What do you do?
-    ''')
+    '''
 
 def room4_attack_fail():
-    print('''
+    return '''
     You were unable to subdue him with your attack.
 
     You prepare to attack again.
-    ''')
+    '''
 
 def room4_explore():
     print('''
@@ -106,7 +106,7 @@ def room4_next():
 
 def room2_intro():
     print('''
-    You hear two voices and the conversation immediatelycuts short upon your
+    You hear two voices and the conversation immediately cuts short upon your
     entry. You look up and see a large toad and a miniscule troll standing at a
     table in the center of the room, their eyes quickly dart to you. You can see
     fear flicker across their faces.
