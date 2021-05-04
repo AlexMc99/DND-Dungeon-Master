@@ -1,6 +1,11 @@
 from ply.lex import lex
 from ply.yacc import yacc
 
+types = []
+values = []
+isOkay = None
+returnedValue = ""
+
 # A pre-defined dictionary to distiguish nouns
 nouns = {
 	'door' : 'DOOR',
@@ -19,13 +24,6 @@ nouns = {
 	'bracelet' : 'BRACELET',
 	'shield' : 'SHIELD',
 	'wand' : 'WAND'
-}
-
-directions = {
-	'north' : 'NORTH',
-	'south' : 'SOUTH',
-	'east' : 'EAST',
-	'west' : 'WEST'
 }
 
 # A pre-defined dictionary to distiguish articles
@@ -116,23 +114,6 @@ directions = {
 	'west' : 'WEST'
 }
 
-# A pre-defined dictionary to distiguish words that are NPCs
-npcs = {
-	'jareth' : 'JARETH',
-	'hogarth' : 'HOGARTH',
-	'hob' : 'HOB',
-	'gob' : 'GOB',
-	'glarg' : 'glarg',
-	'simon' : 'SIMON',
-	'hob' : 'HOB',
-	'kevin' : 'KEVIN',
-	'michael' : 'MICHAEL',
-	'snef' : 'SNEF',
-	'kristo' : 'KRISTO',
-	'nick' : 'NICK',
-	'belsnickel' : 'BELSNICKEL',
-}
-
 # A pre-defined dictionary to distiguish words that deal with adjectives
 adjectives = {
 	'golden' : 'GOLDEN',
@@ -160,31 +141,30 @@ tokens = [
 	'USING'
 ]
 
+# Define what a word is
 def t_WORD(t):
 	r'[a-zA-Z]+'
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
 	if t.value in list(directions.values()):
-		t.type = directions.get(t.value, 'DIRECTION')
+		t.type = directions.get(t.value, 'DIRECTION')  # Convert type from a word to a direction
 	if t.value in list(articles.values()):
-		t.type = articles.get(t.value, 'ARTICLE')
-	if t.value in list(npcs.values()):
-		t.type = npcs.get(t.value, 'NPC')
+		t.type = articles.get(t.value, 'ARTICLE')  # Convert type from a word to an article
 	if t.value in list(attacking.values()):
-		t.type = attacking.get(t.value, 'ATTACKING')
+		t.type = attacking.get(t.value, 'ATTACKING')  # Convert type from a word to an attack command
 	if t.value in list(moving.values()):
-		t.type = moving.get(t.value, 'MOVING')
+		t.type = moving.get(t.value, 'MOVING')  # Convert type from a word to a movement
 	if t.value in list(adjectives.values()):
-		t.type = adjectives.get(t.value, 'ADJECTIVE')
+		t.type = adjectives.get(t.value, 'ADJECTIVE')  # Convert type from a word to an adjective
 	if t.value in list(sneaking.values()):
-		t.type = sneaking.get(t.value, 'SNEAKING')
+		t.type = sneaking.get(t.value, 'SNEAKING')  # Convert type from a word to a sneak command
 	if t.value in list(grabbing.values()):
-		t.type = grabbing.get(t.value, 'GRABBING')
+		t.type = grabbing.get(t.value, 'GRABBING')  # Convert type from a word to a grab command
 	if t.value in list(dropping.values()):
-		t.type = dropping.get(t.value, 'DROPPING')
+		t.type = dropping.get(t.value, 'DROPPING')  # Convert type from a word to a drop command
 	if t.value in list(using.values()):
-		t.type = using.get(t.value, 'USING')
+		t.type = using.get(t.value, 'USING')  # Convert type from a word to a use command
 	return t
 
 def t_error(t):
@@ -200,13 +180,17 @@ lexer.input(user_input.upper())
 
 for token in lexer:
 	print(token)
+	values.append(token.value) # Append token value to a usable list
+	types.append(token.type) # Append token type to a usable list
 
 def p_action(p):
 	'''
 	command : fuller NOUN
 			| fuller NPC
 			| command DIRECTION
+			| fuller WORD
 	'''
+	p[0] = p[2]
 
 def p_fuller(p):
 	'''
@@ -214,6 +198,7 @@ def p_fuller(p):
 		   | full ADJECTIVE
 		   | full ARTICLE
 	'''
+	p[0] = p[2]
 
 def p_full(p):
 	'''
@@ -221,45 +206,69 @@ def p_full(p):
 		 | command ADJECTIVE
 		 | command ARTICLE
 	'''
+	p[0] = p[2]
 
+# Use command
 def p_use(p):
 	'''
 	command : USING
 	'''
-	print("I got a use command!", p[1])
+	p[0] = {"USE", p[1]}
+	global returnedValue
+	returnedValue = "USE"
 
+# Grab command
 def p_grab(p):
 	'''
 	command : GRABBING
 	'''
-	print("I got a grab command!", p[1])
+	p[0] = {"GRAB", p[1]}
+	global returnedValue
+	returnedValue = "GRAB"
 
+# Drop command
 def p_drop(p):
 	'''
 	command : DROPPING
 	'''
-	print("I got a drop command!", p[1])
+	p[0] = {"DROP", p[1]}
+	global returnedValue
+	returnedValue = "DROP"
 
+# Sneak command
 def p_sneak(p):
 	'''
 	command : SNEAKING
 	'''
-	print("I got a sneak command!", p[1])
+	p[0] = {"SNEAK", p[1]}
+	global returnedValue
+	returnedValue = "SNEAK"
 
+# Attack command
 def p_attack(p):
 	'''
 	command : ATTACKING
 	'''
-	print("I got an attack command!", p[1])
+	p[0] = {"ATTACK", p[1]}
+	global returnedValue
+	returnedValue = "ATTACK"
 
+# Move command
 def p_move(p):
 	'''
 	command : MOVING
 	'''
-	print("I got a move command!", p[1])
+	p[0] = {"MOVE", p[1]}
+	global returnedValue
+	returnedValue = "MOVE"
 
 def p_error(p):
-    print("Syntax error in input!")
+    return
 
-parser = yacc()
-output = parser.parse(user_input.upper())
+output = yacc().parse(user_input.upper())
+
+def main():
+	return returnedValue
+
+if __name__ == '__main__':
+	main()
