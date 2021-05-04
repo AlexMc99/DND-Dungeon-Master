@@ -3,7 +3,6 @@ from ply.yacc import yacc
 
 types = []
 values = []
-isOkay = None
 returnedValue = ""
 
 # A pre-defined dictionary to distiguish nouns
