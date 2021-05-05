@@ -5,6 +5,8 @@ from ply.yacc import yacc
 nouns = {
 	'door' : 'DOOR',
 	'room' : 'ROOM',
+	'body' : 'BODY',
+	'leave' : 'LEAVE',
 	'sword' : 'SWORD',
 	'potion' : 'POTION',
 	'bag' : 'BAG',
@@ -25,7 +27,9 @@ directions = {
 	'north' : 'NORTH',
 	'south' : 'SOUTH',
 	'east' : 'EAST',
-	'west' : 'WEST'
+	'west' : 'WEST',
+	'room' : 'ROOM',
+	'body' : 'BODY'
 }
 
 # A pre-defined dictionary to distiguish articles
@@ -42,7 +46,10 @@ moving = {
 	'travel' : 'TRAVEL',
 	'move' : 'MOVE',
 	'enter' : 'ENTER',
-	'leave' : 'LEAVE'
+	'leave' : 'LEAVE',
+	'check' : 'CHECK',
+	'look' : 'LOOK',
+	'search' : 'SEARCH'
 }
 
 # A pre-defined dictionary to distiguish words that deal with attacking
@@ -165,15 +172,15 @@ global choice
 def t_WORD(t):
 	r'[a-zA-Z]+'
 	global choice
+	choice = ''
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
+		print(t.value)
+		choice = t.value
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
 		choice = t.value
-		print("1")
-		print(choice)
-		print("2")
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
 	if t.value in list(npcs.values()):
@@ -181,14 +188,12 @@ def t_WORD(t):
 	if t.value in list(attacking.values()):
 		t.type = attacking.get(t.value, 'ATTACKING')
 	if t.value in list(moving.values()):
-		choice = 'ATTACK'
 		t.type = moving.get(t.value, 'MOVING')
 	if t.value in list(adjectives.values()):
 		t.type = adjectives.get(t.value, 'ADJECTIVE')
 	if t.value in list(sneaking.values()):
 		t.type = sneaking.get(t.value, 'SNEAKING')
 	if t.value in list(grabbing.values()):
-		choice = 'SNEAK'
 		t.type = grabbing.get(t.value, 'GRABBING')
 	if t.value in list(dropping.values()):
 		t.type = dropping.get(t.value, 'DROPPING')
@@ -214,6 +219,8 @@ def parse1 (user_input):
 
 	parser = yacc()
 	output = parser.parse(user_input.upper())
+	print('action')
+	print(action)
 	return action
 
 def p_action(p):
@@ -242,6 +249,8 @@ def p_use(p):
 	command : USING
 	'''
 	print("I got a use command!", p[1])
+	global action
+	action = choice
 
 def p_grab(p):
 	'''
@@ -279,7 +288,7 @@ def p_move(p):
 	global action
 	action = choice
 
-def p_error(p):
-	print("Syntax error in input!")
 
+def p_error(p):
+    print("Syntax error in input!")
 

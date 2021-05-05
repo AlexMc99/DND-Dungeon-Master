@@ -5,6 +5,8 @@ from ply.yacc import yacc
 nouns = {
 	'door' : 'DOOR',
 	'room' : 'ROOM',
+	'body' : 'BODY',
+	'leave' : 'LEAVE',
 	'sword' : 'SWORD',
 	'potion' : 'POTION',
 	'bag' : 'BAG',
@@ -137,6 +139,12 @@ adjectives = {
 	'medium' : 'MEDIUM'
 }
 
+check = {
+	'check' : 'CHECK',
+	'look' : 'LOOK',
+	'search' : 'SEARCH'
+}
+
 # List of Tokens used by the Lexer
 tokens = [
 	'WORD',
@@ -150,17 +158,19 @@ tokens = [
 	'SNEAKING',
 	'GRABBING',
 	'DROPPING',
-	'USING'
+	'USING',
+	'CHECK'
 ]
 
 def t_WORD(t):
 	r'[a-zA-Z]+'
+	global direction
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
+		direction = t.value
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
-		global direction
 		direction  = t.value
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
@@ -180,6 +190,8 @@ def t_WORD(t):
 		t.type = dropping.get(t.value, 'DROPPING')
 	if t.value in list(using.values()):
 		t.type = using.get(t.value, 'USING')
+	if t.value in list(using.values()):
+		t.type = using.get(t.value, 'CHECK')
 	return t
 
 def t_error(t):
@@ -216,6 +228,12 @@ def parse (user_input):
 			| command ADJECTIVE
 			| command ARTICLE
 		'''
+
+	def p_check(p):
+		'''
+		command : CHECK
+		'''
+		print("I got a use command!", p[1])
 
 	def p_use(p):
 		'''
