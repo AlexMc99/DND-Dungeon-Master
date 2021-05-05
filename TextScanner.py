@@ -1,6 +1,10 @@
 from ply.lex import lex
 from ply.yacc import yacc
 
+types = []
+values = []
+returnedValue = ""
+
 # A pre-defined dictionary to distiguish nouns
 nouns = {
 	'door' : 'DOOR',
@@ -111,23 +115,6 @@ directions = {
 	'west' : 'WEST'
 }
 
-# A pre-defined dictionary to distiguish words that are NPCs
-npcs = {
-	'jareth' : 'JARETH',
-	'hogarth' : 'HOGARTH',
-	'hob' : 'HOB',
-	'gob' : 'GOB',
-	'glarg' : 'glarg',
-	'simon' : 'SIMON',
-	'hob' : 'HOB',
-	'kevin' : 'KEVIN',
-	'michael' : 'MICHAEL',
-	'snef' : 'SNEF',
-	'kristo' : 'KRISTO',
-	'nick' : 'NICK',
-	'belsnickel' : 'BELSNICKEL',
-}
-
 # A pre-defined dictionary to distiguish words that deal with adjectives
 adjectives = {
 	'golden' : 'GOLDEN',
@@ -162,6 +149,7 @@ tokens = [
 	'CHECK'
 ]
 
+# Define what a word is
 def t_WORD(t):
 	r'[a-zA-Z]+'
 	global direction
@@ -173,21 +161,19 @@ def t_WORD(t):
 		t.type = directions.get(t.value, 'DIRECTION')
 		direction  = t.value
 	if t.value in list(articles.values()):
-		t.type = articles.get(t.value, 'ARTICLE')
-	if t.value in list(npcs.values()):
-		t.type = npcs.get(t.value, 'NPC')
+		t.type = articles.get(t.value, 'ARTICLE')  # Convert type from a word to an article
 	if t.value in list(attacking.values()):
-		t.type = attacking.get(t.value, 'ATTACKING')
+		t.type = attacking.get(t.value, 'ATTACKING')  # Convert type from a word to an attack command
 	if t.value in list(moving.values()):
-		t.type = moving.get(t.value, 'MOVING')
+		t.type = moving.get(t.value, 'MOVING')  # Convert type from a word to a movement
 	if t.value in list(adjectives.values()):
-		t.type = adjectives.get(t.value, 'ADJECTIVE')
+		t.type = adjectives.get(t.value, 'ADJECTIVE')  # Convert type from a word to an adjective
 	if t.value in list(sneaking.values()):
-		t.type = sneaking.get(t.value, 'SNEAKING')
+		t.type = sneaking.get(t.value, 'SNEAKING')  # Convert type from a word to a sneak command
 	if t.value in list(grabbing.values()):
-		t.type = grabbing.get(t.value, 'GRABBING')
+		t.type = grabbing.get(t.value, 'GRABBING')  # Convert type from a word to a grab command
 	if t.value in list(dropping.values()):
-		t.type = dropping.get(t.value, 'DROPPING')
+		t.type = dropping.get(t.value, 'DROPPING')  # Convert type from a word to a drop command
 	if t.value in list(using.values()):
 		t.type = using.get(t.value, 'USING')
 	if t.value in list(using.values()):
@@ -282,3 +268,5 @@ def parse (user_input):
 
 	return direction
 
+if __name__ == '__main__':
+	main()
