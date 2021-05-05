@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'A ARTICLE BAG DIRECTION DOOR DRAGON EAST ENTER GO GRAB HOUSE ITEM KILL NORTH NOUN POTION PRINCESS SAVE SOUTH SWING SWORD THE VERB WEST WORD\n\tmoveCommand : VERB DIRECTION\n\t\n\tgrabCommand : VERB ARTICLE ITEM\n\t\n\tdropCommand : VERB NOUN\n\t'
+_lr_signature = 'ADJECTIVE ARTICLE ATTACKING DIRECTION DROPPING GRABBING MOVING NOUN NPC SNEAKING USING WORD\n\tcommand : fuller NOUN\n\t\t\t| fuller NPC\n\t\t\t| command DIRECTION\n\t\n\tfuller : full WORD\n\t\t| full ADJECTIVE\n\t\t| full ARTICLE\n\t\n\tfull : command WORD\n\t\t| command ADJECTIVE\n\t\t| command ARTICLE\n\t\n\tcommand : USING\n\t\n\tcommand : GRABBING\n\t\n\tcommand : DROPPING\n\t\n\tcommand : SNEAKING\n\t\n\tcommand : ATTACKING\n\t\n\tcommand : MOVING\n\t'
     
-_lr_action_items = {'VERB':([0,],[2,]),'$end':([1,3,],[0,-1,]),'DIRECTION':([2,],[3,]),}
+_lr_action_items = {'USING':([0,],[3,]),'GRABBING':([0,],[4,]),'DROPPING':([0,],[5,]),'SNEAKING':([0,],[6,]),'ATTACKING':([0,],[7,]),'MOVING':([0,],[8,]),'$end':([1,3,4,5,6,7,8,10,14,15,],[0,-10,-11,-12,-13,-14,-15,-3,-1,-2,]),'DIRECTION':([1,3,4,5,6,7,8,10,14,15,],[10,-10,-11,-12,-13,-14,-15,-3,-1,-2,]),'WORD':([1,3,4,5,6,7,8,9,10,11,12,13,14,15,],[11,-10,-11,-12,-13,-14,-15,16,-3,-7,-8,-9,-1,-2,]),'ADJECTIVE':([1,3,4,5,6,7,8,9,10,11,12,13,14,15,],[12,-10,-11,-12,-13,-14,-15,17,-3,-7,-8,-9,-1,-2,]),'ARTICLE':([1,3,4,5,6,7,8,9,10,11,12,13,14,15,],[13,-10,-11,-12,-13,-14,-15,18,-3,-7,-8,-9,-1,-2,]),'NOUN':([2,16,17,18,],[14,-4,-5,-6,]),'NPC':([2,16,17,18,],[15,-4,-5,-6,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'moveCommand':([0,],[1,]),}
+_lr_goto_items = {'command':([0,],[1,]),'fuller':([0,],[2,]),'full':([0,],[9,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,8 +26,20 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> moveCommand","S'",1,None,None,None),
-  ('moveCommand -> VERB DIRECTION','moveCommand',2,'p_move_command','ParserTest.py',79),
-  ('grabCommand -> VERB ARTICLE ITEM','grabCommand',3,'p_grab_command','ParserTest.py',88),
-  ('dropCommand -> VERB NOUN','dropCommand',2,'p_drop_command','ParserTest.py',97),
+  ("S' -> command","S'",1,None,None,None),
+  ('command -> fuller NOUN','command',2,'p_action','ParserTest.py',226),
+  ('command -> fuller NPC','command',2,'p_action','ParserTest.py',227),
+  ('command -> command DIRECTION','command',2,'p_action','ParserTest.py',228),
+  ('fuller -> full WORD','fuller',2,'p_fuller','ParserTest.py',233),
+  ('fuller -> full ADJECTIVE','fuller',2,'p_fuller','ParserTest.py',234),
+  ('fuller -> full ARTICLE','fuller',2,'p_fuller','ParserTest.py',235),
+  ('full -> command WORD','full',2,'p_full','ParserTest.py',240),
+  ('full -> command ADJECTIVE','full',2,'p_full','ParserTest.py',241),
+  ('full -> command ARTICLE','full',2,'p_full','ParserTest.py',242),
+  ('command -> USING','command',1,'p_use','ParserTest.py',247),
+  ('command -> GRABBING','command',1,'p_grab','ParserTest.py',255),
+  ('command -> DROPPING','command',1,'p_drop','ParserTest.py',261),
+  ('command -> SNEAKING','command',1,'p_sneak','ParserTest.py',267),
+  ('command -> ATTACKING','command',1,'p_attack','ParserTest.py',275),
+  ('command -> MOVING','command',1,'p_move','ParserTest.py',283),
 ]

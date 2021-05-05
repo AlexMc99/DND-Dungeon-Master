@@ -1,97 +1,258 @@
 Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
-Unused terminals:
-
-    A
-    BAG
-    DOOR
-    DRAGON
-    EAST
-    ENTER
-    GO
-    GRAB
-    HOUSE
-    KILL
-    NORTH
-    POTION
-    PRINCESS
-    SAVE
-    SOUTH
-    SWING
-    SWORD
-    THE
-    WEST
-    WORD
-
 Grammar
 
-Rule 0     S' -> moveCommand
-Rule 1     moveCommand -> VERB DIRECTION
-Rule 2     grabCommand -> VERB ARTICLE ITEM
-Rule 3     dropCommand -> VERB NOUN
+Rule 0     S' -> command
+Rule 1     command -> fuller NOUN
+Rule 2     command -> fuller NPC
+Rule 3     command -> command DIRECTION
+Rule 4     fuller -> full WORD
+Rule 5     fuller -> full ADJECTIVE
+Rule 6     fuller -> full ARTICLE
+Rule 7     full -> command WORD
+Rule 8     full -> command ADJECTIVE
+Rule 9     full -> command ARTICLE
+Rule 10    command -> USING
+Rule 11    command -> GRABBING
+Rule 12    command -> DROPPING
+Rule 13    command -> SNEAKING
+Rule 14    command -> ATTACKING
+Rule 15    command -> MOVING
 
 Terminals, with rules where they appear
 
-A                    : 
-ARTICLE              : 2
-BAG                  : 
-DIRECTION            : 1
-DOOR                 : 
-DRAGON               : 
-EAST                 : 
-ENTER                : 
-GO                   : 
-GRAB                 : 
-HOUSE                : 
-ITEM                 : 2
-KILL                 : 
-NORTH                : 
-NOUN                 : 3
-POTION               : 
-PRINCESS             : 
-SAVE                 : 
-SOUTH                : 
-SWING                : 
-SWORD                : 
-THE                  : 
-VERB                 : 1 2 3
-WEST                 : 
-WORD                 : 
+ADJECTIVE            : 5 8
+ARTICLE              : 6 9
+ATTACKING            : 14
+DIRECTION            : 3
+DROPPING             : 12
+GRABBING             : 11
+MOVING               : 15
+NOUN                 : 1
+NPC                  : 2
+SNEAKING             : 13
+USING                : 10
+WORD                 : 4 7
 error                : 
 
 Nonterminals, with rules where they appear
 
-dropCommand          : 
-grabCommand          : 
-moveCommand          : 0
+command              : 3 7 8 9 0
+full                 : 4 5 6
+fuller               : 1 2
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . moveCommand
-    (1) moveCommand -> . VERB DIRECTION
+    (0) S' -> . command
+    (1) command -> . fuller NOUN
+    (2) command -> . fuller NPC
+    (3) command -> . command DIRECTION
+    (10) command -> . USING
+    (11) command -> . GRABBING
+    (12) command -> . DROPPING
+    (13) command -> . SNEAKING
+    (14) command -> . ATTACKING
+    (15) command -> . MOVING
+    (4) fuller -> . full WORD
+    (5) fuller -> . full ADJECTIVE
+    (6) fuller -> . full ARTICLE
+    (7) full -> . command WORD
+    (8) full -> . command ADJECTIVE
+    (9) full -> . command ARTICLE
 
-    VERB            shift and go to state 2
+    USING           shift and go to state 3
+    GRABBING        shift and go to state 4
+    DROPPING        shift and go to state 5
+    SNEAKING        shift and go to state 6
+    ATTACKING       shift and go to state 7
+    MOVING          shift and go to state 8
 
-    moveCommand                    shift and go to state 1
+    command                        shift and go to state 1
+    fuller                         shift and go to state 2
+    full                           shift and go to state 9
 
 state 1
 
-    (0) S' -> moveCommand .
+    (0) S' -> command .
+    (3) command -> command . DIRECTION
+    (7) full -> command . WORD
+    (8) full -> command . ADJECTIVE
+    (9) full -> command . ARTICLE
 
+    DIRECTION       shift and go to state 10
+    WORD            shift and go to state 11
+    ADJECTIVE       shift and go to state 12
+    ARTICLE         shift and go to state 13
 
 
 state 2
 
-    (1) moveCommand -> VERB . DIRECTION
+    (1) command -> fuller . NOUN
+    (2) command -> fuller . NPC
 
-    DIRECTION       shift and go to state 3
+    NOUN            shift and go to state 14
+    NPC             shift and go to state 15
 
 
 state 3
 
-    (1) moveCommand -> VERB DIRECTION .
+    (10) command -> USING .
 
-    $end            reduce using rule 1 (moveCommand -> VERB DIRECTION .)
+    DIRECTION       reduce using rule 10 (command -> USING .)
+    WORD            reduce using rule 10 (command -> USING .)
+    ADJECTIVE       reduce using rule 10 (command -> USING .)
+    ARTICLE         reduce using rule 10 (command -> USING .)
+    $end            reduce using rule 10 (command -> USING .)
+
+
+state 4
+
+    (11) command -> GRABBING .
+
+    DIRECTION       reduce using rule 11 (command -> GRABBING .)
+    WORD            reduce using rule 11 (command -> GRABBING .)
+    ADJECTIVE       reduce using rule 11 (command -> GRABBING .)
+    ARTICLE         reduce using rule 11 (command -> GRABBING .)
+    $end            reduce using rule 11 (command -> GRABBING .)
+
+
+state 5
+
+    (12) command -> DROPPING .
+
+    DIRECTION       reduce using rule 12 (command -> DROPPING .)
+    WORD            reduce using rule 12 (command -> DROPPING .)
+    ADJECTIVE       reduce using rule 12 (command -> DROPPING .)
+    ARTICLE         reduce using rule 12 (command -> DROPPING .)
+    $end            reduce using rule 12 (command -> DROPPING .)
+
+
+state 6
+
+    (13) command -> SNEAKING .
+
+    DIRECTION       reduce using rule 13 (command -> SNEAKING .)
+    WORD            reduce using rule 13 (command -> SNEAKING .)
+    ADJECTIVE       reduce using rule 13 (command -> SNEAKING .)
+    ARTICLE         reduce using rule 13 (command -> SNEAKING .)
+    $end            reduce using rule 13 (command -> SNEAKING .)
+
+
+state 7
+
+    (14) command -> ATTACKING .
+
+    DIRECTION       reduce using rule 14 (command -> ATTACKING .)
+    WORD            reduce using rule 14 (command -> ATTACKING .)
+    ADJECTIVE       reduce using rule 14 (command -> ATTACKING .)
+    ARTICLE         reduce using rule 14 (command -> ATTACKING .)
+    $end            reduce using rule 14 (command -> ATTACKING .)
+
+
+state 8
+
+    (15) command -> MOVING .
+
+    DIRECTION       reduce using rule 15 (command -> MOVING .)
+    WORD            reduce using rule 15 (command -> MOVING .)
+    ADJECTIVE       reduce using rule 15 (command -> MOVING .)
+    ARTICLE         reduce using rule 15 (command -> MOVING .)
+    $end            reduce using rule 15 (command -> MOVING .)
+
+
+state 9
+
+    (4) fuller -> full . WORD
+    (5) fuller -> full . ADJECTIVE
+    (6) fuller -> full . ARTICLE
+
+    WORD            shift and go to state 16
+    ADJECTIVE       shift and go to state 17
+    ARTICLE         shift and go to state 18
+
+
+state 10
+
+    (3) command -> command DIRECTION .
+
+    DIRECTION       reduce using rule 3 (command -> command DIRECTION .)
+    WORD            reduce using rule 3 (command -> command DIRECTION .)
+    ADJECTIVE       reduce using rule 3 (command -> command DIRECTION .)
+    ARTICLE         reduce using rule 3 (command -> command DIRECTION .)
+    $end            reduce using rule 3 (command -> command DIRECTION .)
+
+
+state 11
+
+    (7) full -> command WORD .
+
+    WORD            reduce using rule 7 (full -> command WORD .)
+    ADJECTIVE       reduce using rule 7 (full -> command WORD .)
+    ARTICLE         reduce using rule 7 (full -> command WORD .)
+
+
+state 12
+
+    (8) full -> command ADJECTIVE .
+
+    WORD            reduce using rule 8 (full -> command ADJECTIVE .)
+    ADJECTIVE       reduce using rule 8 (full -> command ADJECTIVE .)
+    ARTICLE         reduce using rule 8 (full -> command ADJECTIVE .)
+
+
+state 13
+
+    (9) full -> command ARTICLE .
+
+    WORD            reduce using rule 9 (full -> command ARTICLE .)
+    ADJECTIVE       reduce using rule 9 (full -> command ARTICLE .)
+    ARTICLE         reduce using rule 9 (full -> command ARTICLE .)
+
+
+state 14
+
+    (1) command -> fuller NOUN .
+
+    DIRECTION       reduce using rule 1 (command -> fuller NOUN .)
+    WORD            reduce using rule 1 (command -> fuller NOUN .)
+    ADJECTIVE       reduce using rule 1 (command -> fuller NOUN .)
+    ARTICLE         reduce using rule 1 (command -> fuller NOUN .)
+    $end            reduce using rule 1 (command -> fuller NOUN .)
+
+
+state 15
+
+    (2) command -> fuller NPC .
+
+    DIRECTION       reduce using rule 2 (command -> fuller NPC .)
+    WORD            reduce using rule 2 (command -> fuller NPC .)
+    ADJECTIVE       reduce using rule 2 (command -> fuller NPC .)
+    ARTICLE         reduce using rule 2 (command -> fuller NPC .)
+    $end            reduce using rule 2 (command -> fuller NPC .)
+
+
+state 16
+
+    (4) fuller -> full WORD .
+
+    NOUN            reduce using rule 4 (fuller -> full WORD .)
+    NPC             reduce using rule 4 (fuller -> full WORD .)
+
+
+state 17
+
+    (5) fuller -> full ADJECTIVE .
+
+    NOUN            reduce using rule 5 (fuller -> full ADJECTIVE .)
+    NPC             reduce using rule 5 (fuller -> full ADJECTIVE .)
+
+
+state 18
+
+    (6) fuller -> full ARTICLE .
+
+    NOUN            reduce using rule 6 (fuller -> full ARTICLE .)
+    NPC             reduce using rule 6 (fuller -> full ARTICLE .)
 

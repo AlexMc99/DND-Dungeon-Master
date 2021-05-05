@@ -9,6 +9,8 @@ returnedValue = ""
 nouns = {
 	'door' : 'DOOR',
 	'room' : 'ROOM',
+	'body' : 'BODY',
+	'leave' : 'LEAVE',
 	'sword' : 'SWORD',
 	'potion' : 'POTION',
 	'bag' : 'BAG',
@@ -124,6 +126,12 @@ adjectives = {
 	'medium' : 'MEDIUM'
 }
 
+check = {
+	'check' : 'CHECK',
+	'look' : 'LOOK',
+	'search' : 'SEARCH'
+}
+
 # List of Tokens used by the Lexer
 tokens = [
 	'WORD',
@@ -137,17 +145,21 @@ tokens = [
 	'SNEAKING',
 	'GRABBING',
 	'DROPPING',
-	'USING'
+	'USING',
+	'CHECK'
 ]
 
 # Define what a word is
 def t_WORD(t):
 	r'[a-zA-Z]+'
+	global direction
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
+		direction = t.value
 	if t.value in list(directions.values()):
-		t.type = directions.get(t.value, 'DIRECTION')  # Convert type from a word to a direction
+		t.type = directions.get(t.value, 'DIRECTION')
+		direction  = t.value
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')  # Convert type from a word to an article
 	if t.value in list(attacking.values()):
@@ -163,7 +175,9 @@ def t_WORD(t):
 	if t.value in list(dropping.values()):
 		t.type = dropping.get(t.value, 'DROPPING')  # Convert type from a word to a drop command
 	if t.value in list(using.values()):
-		t.type = using.get(t.value, 'USING')  # Convert type from a word to a use command
+		t.type = using.get(t.value, 'USING')
+	if t.value in list(using.values()):
+		t.type = using.get(t.value, 'CHECK')
 	return t
 
 def t_error(t):
@@ -173,101 +187,86 @@ def t_error(t):
 # Ignore whitespace
 t_ignore = ' '
 
-user_input = input()
-lexer = lex()
-lexer.input(user_input.upper())
+def parse (user_input):
+	lexer = lex()
+	lexer.input(user_input.upper())
 
-for token in lexer:
-	print(token)
-	values.append(token.value) # Append token value to a usable list
-	types.append(token.type) # Append token type to a usable list
+	for token in lexer:
+		print(token)
 
-def p_action(p):
-	'''
-	command : fuller NOUN
-			| fuller NPC
-			| command DIRECTION
-			| fuller WORD
-	'''
-	p[0] = p[2]
+	def p_action(p):
+		'''
+		command : fuller NOUN
+				| fuller NPC
+				| command DIRECTION
+		'''
 
-def p_fuller(p):
-	'''
-	fuller : full WORD
-		   | full ADJECTIVE
-		   | full ARTICLE
-	'''
-	p[0] = p[2]
+	def p_fuller(p):
+		'''
+		fuller : full WORD
+			| full ADJECTIVE
+			| full ARTICLE
+		'''
 
-def p_full(p):
-	'''
-	full : command WORD
-		 | command ADJECTIVE
-		 | command ARTICLE
-	'''
-	p[0] = p[2]
+	def p_full(p):
+		'''
+		full : command WORD
+			| command ADJECTIVE
+			| command ARTICLE
+		'''
 
-# Use command
-def p_use(p):
-	'''
-	command : USING
-	'''
-	p[0] = {"USE", p[1]}
-	global returnedValue
-	returnedValue = "USE"
+	def p_check(p):
+		'''
+		command : CHECK
+		'''
+		print("I got a use command!", p[1])
 
-# Grab command
-def p_grab(p):
-	'''
-	command : GRABBING
-	'''
-	p[0] = {"GRAB", p[1]}
-	global returnedValue
-	returnedValue = "GRAB"
+	def p_use(p):
+		'''
+		command : USING
+		'''
+		print("I got a use command!", p[1])
 
-# Drop command
-def p_drop(p):
-	'''
-	command : DROPPING
-	'''
-	p[0] = {"DROP", p[1]}
-	global returnedValue
-	returnedValue = "DROP"
+	def p_grab(p):
+		'''
+		command : GRABBING
+		'''
+		print("I got a grab command!", p[1])
 
-# Sneak command
-def p_sneak(p):
-	'''
-	command : SNEAKING
-	'''
-	p[0] = {"SNEAK", p[1]}
-	global returnedValue
-	returnedValue = "SNEAK"
+	def p_drop(p):
+		'''
+		command : DROPPING
+		'''
+		print("I got a drop command!", p[1])
 
-# Attack command
-def p_attack(p):
-	'''
-	command : ATTACKING
-	'''
-	p[0] = {"ATTACK", p[1]}
-	global returnedValue
-	returnedValue = "ATTACK"
+	def p_sneak(p):
+		'''
+		command : SNEAKING
+		'''
+		print("I got a sneak command!", p[1])
 
-# Move command
-def p_move(p):
-	'''
-	command : MOVING
-	'''
-	p[0] = {"MOVE", p[1]}
-	global returnedValue
-	returnedValue = "MOVE"
+	def p_attack(p):
+		'''
+		command : ATTACKING
+		'''
+		print("I got an attack command!", p[1])
 
-def p_error(p):
-    return
+	def p_move(p):
+		'''
+		command : MOVING
+		'''
+		print("I got a move command!", p[1])
 
-output = yacc().parse(user_input.upper())
+	def p_error(p):
+		print("Syntax error in input!")
 
-def main():
-	return returnedValue
+	parser = yacc()
+	output = parser.parse(user_input.upper())
+
+	# Ignores whitespace
+	t_ignore = ' '
+
+	return direction
 
 if __name__ == '__main__':
 	main()

@@ -5,6 +5,8 @@ from ply.yacc import yacc
 nouns = {
 	'door' : 'DOOR',
 	'room' : 'ROOM',
+	'body' : 'BODY',
+	'leave' : 'LEAVE',
 	'sword' : 'SWORD',
 	'potion' : 'POTION',
 	'bag' : 'BAG',
@@ -21,6 +23,15 @@ nouns = {
 	'wand' : 'WAND'
 }
 
+directions = {
+	'north' : 'NORTH',
+	'south' : 'SOUTH',
+	'east' : 'EAST',
+	'west' : 'WEST',
+	'room' : 'ROOM',
+	'body' : 'BODY'
+}
+
 # A pre-defined dictionary to distiguish articles
 articles = {
 	'a' : 'A',
@@ -35,7 +46,10 @@ moving = {
 	'travel' : 'TRAVEL',
 	'move' : 'MOVE',
 	'enter' : 'ENTER',
-	'leave' : 'LEAVE'
+	'leave' : 'LEAVE',
+	'check' : 'CHECK',
+	'look' : 'LOOK',
+	'search' : 'SEARCH'
 }
 
 # A pre-defined dictionary to distiguish words that deal with attacking
@@ -97,7 +111,8 @@ using = {
 	'utilize' : 'UTILIZE',
 	'operate' : 'OPERATE',
 	'apply' : 'APPLY',
-	'wield' : 'WIELD'
+	'wield' : 'WIELD',
+	'open' : 'OPEN'
 }
 
 # A pre-defined dictionary to distiguish words that deal with directions
@@ -152,15 +167,20 @@ tokens = [
 	'USING'
 ]
 
-#+ list(nouns.values()) + list(directions.values()) + list(articles.values()) + list(npcs.values()) + list(attacking.values()) + list(moving.values()) + list(adjectives.values()) + list(sneaking.values()) + list(grabbing.values()) + list(dropping.values())
+global choice 
 
 def t_WORD(t):
 	r'[a-zA-Z]+'
+	global choice
+	choice = ''
 	t.value = str(t.value)
 	if t.value in list(nouns.values()):
 		t.type = nouns.get(t.value, 'NOUN') # Convert type from a word to a noun
+		print(t.value)
+		choice = t.value
 	if t.value in list(directions.values()):
 		t.type = directions.get(t.value, 'DIRECTION')
+		choice = t.value
 	if t.value in list(articles.values()):
 		t.type = articles.get(t.value, 'ARTICLE')
 	if t.value in list(npcs.values()):
@@ -188,70 +208,20 @@ def t_error(t):
 # Ignore whitespace
 t_ignore = ' '
 
-user_input = input()
-lexer = lex()
-lexer.input(user_input.upper())
+global action
+def parse1 (user_input):
+	lexer = lex()
+	lexer.input(user_input.upper())
+	
 
-for token in lexer:
-	print(token)
+	for token in lexer:
+		print(token)
 
-# def p_fullCommand(p):
-# 	'''
-# 	fullCommand : command OBJECT
-# 				| command DIRECTION
-# 				| command NPC
-# 	'''
-# 	if p[1][1] == 'DROP':
-# 		print("This is a DROP COMMAND")
-#
-# 	elif p[1][1] == 'GRAB':
-# 		print("This is a GRAB COMMAND")
-#
-# 	elif p[1][1] == "GO" or p[1][1] == "HEAD":
-# 		print("This is a MOVE COMMAND")
-#
-# 	elif p[1][1] == "KILL" or p[1][1] == "ATTACK":
-# 		print("This is an ATTACK COMMAND")
-#
-# 	elif p[1][1] == "SNEAK":
-# 		print("This is an SNEAK COMMAND")
-#
-# def p_dropCommand(p):
-# 	'''
-# 	dropCommand : DROP OBJECT
-# 	'''
-# 	p[0] = ('COMMAND', p[1], 'OBJECT', p[2])
-#
-# 	if p[1][1] == 'DROP':
-# 		print("This is a DROP COMMAND")
-#
-# 	elif p[1][1] == 'GRAB':
-# 		print("This is a GRAB COMMAND")
-
-# def p_command(p):
-# 	'''
-# 	command : start NPC
-# 			| start DIRECTION
-# 	'''
-# 	print(p[0])
-# 	if 'ATTACK':
-# 		p[0] = ('START', p[1], 'NPC', p[2])
-# 		print("This is an ATTACK COMMAND")
-#
-# 	if 'MOVE':
-# 		p[0] = ('START', p[1], 'DIRECTION', p[2])
-# 		print("This is a MOVE COMMAND")
-
-# def p_command(p):
-# 	'''
-# 	command : VERB ARTICLE
-# 			| VERB WORD ARTICLE
-# 	'''
-# 	if p[2] == 'TO':
-# 		p[0] = ('VERB', p[1], 'WORD', p[2], 'ARTICLE', p[3])
-#
-# 	elif p[2] == 'THE':
-# 		p[0] = ('VERB', p[1], 'ARTICLE', p[2])
+	parser = yacc()
+	output = parser.parse(user_input.upper())
+	print('action')
+	print(action)
+	return action
 
 def p_action(p):
 	'''
@@ -263,15 +233,15 @@ def p_action(p):
 def p_fuller(p):
 	'''
 	fuller : full WORD
-		   | full ADJECTIVE
-		   | full ARTICLE
+		| full ADJECTIVE
+		| full ARTICLE
 	'''
 
 def p_full(p):
 	'''
 	full : command WORD
-		 | command ADJECTIVE
-		 | command ARTICLE
+		| command ADJECTIVE
+		| command ARTICLE
 	'''
 
 def p_use(p):
@@ -279,6 +249,8 @@ def p_use(p):
 	command : USING
 	'''
 	print("I got a use command!", p[1])
+	global action
+	action = choice
 
 def p_grab(p):
 	'''
@@ -297,21 +269,26 @@ def p_sneak(p):
 	command : SNEAKING
 	'''
 	print("I got a sneak command!", p[1])
+	global action
+	action = 'SNEAK'
 
 def p_attack(p):
 	'''
 	command : ATTACKING
 	'''
 	print("I got an attack command!", p[1])
+	global action
+	action = 'ATTACK'
 
 def p_move(p):
 	'''
 	command : MOVING
 	'''
 	print("I got a move command!", p[1])
+	global action
+	action = choice
+
 
 def p_error(p):
     print("Syntax error in input!")
 
-parser = yacc()
-output = parser.parse(user_input.upper())
